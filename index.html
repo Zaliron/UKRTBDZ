@@ -3,19 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Домашние задания</title>
+    <title>Дневник для своих</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="main-container">
-        <div id="header">
-            <h1>Домашние задания</h1>
-            <div id="group-info"></div>
+        <div id="welcome-screen" class="container">
+            <img src="logo.png" alt="Логотип" class="logo">
+            <h1>ДОБРО ПОЖАЛОВАТЬ В<br>ДНЕВНИК ДЛЯ СВОИХ</h1>
+            
+            <div class="welcome-info">
+                <p>👋 Добро пожаловать в бот для домашних заданий!</p>
+                <p>Этот бот поможет вам:</p>
+                <ul>
+                    <li>• Получать домашние задания 📚</li>
+                    <li>• Отслеживать новые задания 🔍</li>
+                    <li>• Делиться решениями с одногруппниками 👥</li>
+                    <li>• Отмечать выполненные задания ✅</li>
+                </ul>
+                
+                <div class="instructions">
+                    <p>Как пользоваться ботом:</p>
+                    <ol>
+                        <li>1. Выберите свою группу</li>
+                        <li>2. Просматривайте задания по предметам</li>
+                        <li>3. Отмечайте выполненные задания</li>
+                        <li>4. Делитесь решениями</li>
+                        <li>5. Получайте уведомления о новых заданиях</li>
+                    </ol>
+                </div>
+            </div>
+
+            <button id="select-group" class="primary-button">Выбрать группу ➜</button>
         </div>
 
-        <div id="subjects-container" class="container">
-            <!-- Предметы будут добавлены через JavaScript -->
+        <div id="group-select" class="container hidden">
+            <h2>Выберите вашу группу:</h2>
+            <div class="group-list">
+                <button class="group-button">9ИСП-12К-24</button>
+                <button class="group-button">9КСК-10-24</button>
+                <button class="group-button">9ИСП-111К-24</button>
+                <button class="group-button">9ИКСС-13-24</button>
+            </div>
+        </div>
+
+        <div id="subjects-container" class="container hidden">
+            <h2>Выберите предмет из списка:</h2>
+            <div class="subjects-list">
+                <!-- Предметы будут добавлены через JavaScript -->
+            </div>
+            <button id="subscribe-notifications" class="notification-button">
+                🔔 Подписаться на уведомления
+            </button>
         </div>
 
         <div id="homework-container" class="container hidden">
