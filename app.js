@@ -2,6 +2,8 @@ let tg = window.Telegram.WebApp;
 let currentSubject = null;
 let userGroup = null;
 
+const isDarkTheme = window.Telegram.WebApp.colorScheme === 'dark';
+
 const SUBJECT_EMOJI = {
     "Башкирский язык": "📚",
     "Биология": "🧬",
@@ -28,12 +30,25 @@ const STATUS_EMOJI = {
     'completed': '✅'
 };
 
+const GROUPS = {
+    "9ИСП-12К-24": "9isp12k24",
+    "9КСК-10-24": "9ksk1024",
+    "9ИСП-111К-24": "9isp111k24",
+    "9ИКСС-13-24": "9ikss1324"
+};
+
+tg.MainButton.textColor = '#FFFFFF';
+tg.MainButton.color = '#2481cc';
+
 document.addEventListener('DOMContentLoaded', () => {
     tg.expand();
     initializeApp();
 });
 
 async function initializeApp() {
+    if (isDarkTheme) {
+        document.body.classList.add('dark-theme');
+    }
     // Получаем группу пользователя из параметров URL или из бота
     const urlParams = new URLSearchParams(window.location.search);
     userGroup = urlParams.get('group') || await getUserGroup();
@@ -65,10 +80,14 @@ function setupEventListeners() {
 
 async function getUserGroup() {
     try {
-        const response = await tg.sendData(JSON.stringify({
+        tg.sendData(JSON.stringify({
             action: 'get_user_group'
         }));
-        return response.group;
+        return new Promise((resolve) => {
+            tg.onEvent('message', (message) => {
+                resolve(message.group);
+            });
+        });
     } catch (error) {
         showNotification('Ошибка получения группы');
         return null;
@@ -218,11 +237,15 @@ async function markHomeworkDone(subject) {
 
 async function uploadSolution(subject) {
     try {
-        await tg.sendData(JSON.stringify({
-            action: 'upload_solution',
-            subject: subject,
-            group: userGroup
-        }));
+        tg.MainButton.setText('Загрузить решение');
+        tg.MainButton.show();
+        tg.MainButton.onClick(() => {
+            tg.sendData(JSON.stringify({
+                action: 'upload_solution',
+                subject: subject,
+                group: userGroup
+            }));
+        });
     } catch (error) {
         showNotification('Ошибка при загрузке решения');
     }
@@ -240,4 +263,34 @@ function showNotification(message) {
 // Добавляем обработчик для получения данных от бота
 tg.onEvent('viewportChanged', () => {
     tg.expand();
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    const groupInfo = document.getElementById('group-info');
+
+    // Пример функции для получения данных о группе
+    function fetchGroupData() {
+        // Здесь должен быть ваш код для получения данных
+        // Например, через fetch или XMLHttpRequest
+        fetch('/api/group')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    groupInfo.textContent = `Группа: ${data.groupName}`;
+                } else {
+                    showError('Ошибка получения группы');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                showError('Ошибка получения группы');
+            });
+    }
+
+    function showError(message) {
+        const errorContainer = document.getElementById('error-container');
+        errorContainer.querySelector('.error-message').textContent = message;
+    }
+
+    fetchGroupData();
 });
