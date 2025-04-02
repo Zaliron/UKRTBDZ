@@ -1,6 +1,10 @@
 let tg = window.Telegram.WebApp;
 tg.expand(); // Расширяем на весь экран 
 
+// Получаем данные от бота
+const initData = tg.initDataUnsafe || {};
+const user = initData.user || {};
+
 // Константы из бота
 const GROUPS = {
     "9ИСП-12К-24": "9isp12k24",
@@ -46,7 +50,14 @@ const state = {
 
 // Функция для отображения выбора группы
 function renderGroupSelector() {
+    // Если пользователь уже выбрал группу в боте, пропускаем выбор
+    if (initData.start_param) {
+        selectGroup(initData.start_param);
+        return;
+    }
+    
     const groupSelector = document.getElementById('group-selector');
+    groupSelector.style.display = 'block';
     const groups = Object.entries(GROUPS);
     
     const groupButtons = groups.map(([name, id]) => `
