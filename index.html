@@ -11,9 +11,20 @@
     <div id="app">
         <header>
             <h1>🎓 Домашние задания</h1>
+            <div id="group-selector"></div>
         </header>
         <main>
             <div id="subjects-list"></div>
+            <div id="homework-view" style="display: none;">
+                <div id="homework-content"></div>
+                <div id="homework-files"></div>
+                <div id="homework-actions"></div>
+            </div>
+            <div id="notification-settings" style="display: none;">
+                <button id="subscribe-btn" class="action-button">
+                    🔔 Подписаться на уведомления
+                </button>
+            </div>
         </main>
     </div>
     <script src="app.js"></script>
