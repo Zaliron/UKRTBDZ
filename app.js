@@ -1,16 +1,8 @@
 let tg = window.Telegram.WebApp;
-tg.expand(); // Расширяем на весь экран 
+let currentSubject = null;
+let userGroup = null;
 
-// Константы из бота
-const GROUPS = {
-    "9ИСП-12К-24": "9isp12k24",
-    "9КСК-10-24": "9ksk1024",
-    "9ИСП-111К-24": "9isp111k24",
-    "9ИКСС-13-24": "9ikss1324"
-};
-
-// Предметы с эмодзи
-const SUBJECTS = {
+const SUBJECT_EMOJI = {
     "Башкирский язык": "📚",
     "Биология": "🧬",
     "География": "🌍",
@@ -28,212 +20,224 @@ const SUBJECTS = {
     "Химия": "🧪"
 };
 
+const SUBJECTS = Object.keys(SUBJECT_EMOJI);
+
 const STATUS_EMOJI = {
     'new': '🆕',
-    'updated': '🔄',
-    'loading': '⏳',
-    'success': '✅',
-    'error': '❌'
+    'viewed': '👁️',
+    'completed': '✅'
 };
 
-// Состояние приложения
-const state = {
-    currentGroup: null,
-    currentSubject: null,
-    currentView: 'groups', // Всегда начинаем с выбора группы
-    isSubscribed: false
-};
+document.addEventListener('DOMContentLoaded', () => {
+    tg.expand();
+    initializeApp();
+});
 
-// Функция для отображения выбора группы
-function renderGroupSelector() {
-    const groupSelector = document.getElementById('group-selector');
-    groupSelector.style.display = 'block';
-    const groups = Object.entries(GROUPS);
-    
-    const groupButtons = groups.map(([name, id]) => `
-        <button class="group-button action-button" onclick="selectGroup('${id}', '${name}')">
-            👥 ${name}
+async function initializeApp() {
+    // Получаем группу пользователя из параметров URL или из бота
+    const urlParams = new URLSearchParams(window.location.search);
+    userGroup = urlParams.get('group') || await getUserGroup();
+
+    if (!userGroup) {
+        showGroupSelection();
+    } else {
+        showSubjects();
+    }
+
+    setupEventListeners();
+}
+
+function setupEventListeners() {
+    document.querySelectorAll('.back-button').forEach(button => {
+        button.addEventListener('click', () => {
+            showSubjects();
+        });
+    });
+
+    document.getElementById('mark-done').addEventListener('click', () => {
+        markHomeworkDone(currentSubject);
+    });
+
+    document.getElementById('upload-solution').addEventListener('click', () => {
+        uploadSolution(currentSubject);
+    });
+}
+
+async function getUserGroup() {
+    try {
+        const response = await tg.sendData(JSON.stringify({
+            action: 'get_user_group'
+        }));
+        return response.group;
+    } catch (error) {
+        showNotification('Ошибка получения группы');
+        return null;
+    }
+}
+
+function showGroupSelection() {
+    const container = document.getElementById('subjects-container');
+    container.innerHTML = `
+        <h2>Выберите вашу группу</h2>
+        <div class="group-buttons">
+            ${Object.entries(GROUPS).map(([name, code]) => `
+                <button class="subject-button" data-group="${code}">
+                    👥 ${name}
+                </button>
+            `).join('')}
+        </div>
+    `;
+
+    container.querySelectorAll('[data-group]').forEach(button => {
+        button.addEventListener('click', () => {
+            selectGroup(button.dataset.group);
+        });
+    });
+}
+
+async function selectGroup(group) {
+    try {
+        await tg.sendData(JSON.stringify({
+            action: 'select_group',
+            group: group
+        }));
+        userGroup = group;
+        showSubjects();
+    } catch (error) {
+        showNotification('Ошибка при выборе группы');
+    }
+}
+
+function showSubjects() {
+    const container = document.getElementById('subjects-container');
+    container.classList.remove('hidden');
+    document.getElementById('homework-container').classList.add('hidden');
+    document.getElementById('archive-container').classList.add('hidden');
+
+    container.innerHTML = SUBJECTS.map(subject => `
+        <button class="subject-button" data-subject="${subject}">
+            <span class="subject-emoji">${SUBJECT_EMOJI[subject]}</span>
+            ${subject}
+            <span class="status-badge" id="status-${subject}"></span>
         </button>
     `).join('');
-    
-    groupSelector.innerHTML = `
-        <div class="group-selector">
-            <h2>Выберите группу:</h2>
-            ${groupButtons}
-        </div>
-    `;
+
+    container.querySelectorAll('[data-subject]').forEach(button => {
+        button.addEventListener('click', () => {
+            showHomework(button.dataset.subject);
+        });
+    });
+
+    updateSubjectStatuses();
 }
 
-// Функция выбора группы
-function selectGroup(groupId, groupName) {
-    state.currentGroup = groupId;
-    state.currentView = 'subjects';
-    
-    // Сохраняем выбор группы через бота
-    tg.sendData(JSON.stringify({
-        action: 'select_group',
-        group: groupId
-    }));
-    
-    renderSubjects();
-}
-
-// Функция для отображения списка предметов
-function renderSubjects() {
-    document.getElementById('group-selector').style.display = 'none';
-    const subjectsList = document.getElementById('subjects-list');
-    subjectsList.style.display = 'block';
-    
-    const subjectsHtml = Object.entries(SUBJECTS).map(([subject, emoji]) => `
-        <div class="subject-card" onclick="viewSubject('${subject}')">
-            <div class="subject-title">${emoji} ${subject}</div>
-            <div class="subject-status">Нажмите для просмотра</div>
-        </div>
-    `).join('');
-    
-    subjectsList.innerHTML = `
-        <div class="subjects-header">
-            <h2>Предметы</h2>
-            <button class="action-button back-button" onclick="goBack()">« Назад</button>
-            <button class="action-button" onclick="showNotificationSettings()">
-                🔔 Уведомления
-            </button>
-        </div>
-        ${subjectsHtml}
-    `;
-}
-
-// Функция для просмотра предмета
-function viewSubject(subject) {
-    state.currentSubject = subject;
-    state.currentView = 'homework';
-    
-    document.getElementById('subjects-list').style.display = 'none';
-    const homeworkView = document.getElementById('homework-view');
-    homeworkView.style.display = 'block';
-    
-    // Запрашиваем данные через бота
-    tg.sendData(JSON.stringify({
-        action: 'get_homework',
-        subject: subject,
-        group: state.currentGroup
-    }));
-    
-    // Показываем загрузку
-    renderHomeworkPlaceholder(subject);
-}
-
-// Функция для отображения заглушки домашнего задания
-function renderHomeworkPlaceholder(subject) {
-    const content = document.getElementById('homework-content');
-    
-    content.innerHTML = `
-        <div class="homework-header">
-            <h2>${SUBJECTS[subject]} ${subject}</h2>
-            <button class="action-button back-button" onclick="goBack()">« Назад</button>
-        </div>
-        <div class="homework-content">
-            <div class="loading">
-                ${STATUS_EMOJI.loading} Загрузка задания...
-            </div>
-        </div>
-    `;
-}
-
-// Функция для возврата назад
-function goBack() {
-    if (state.currentView === 'homework') {
-        state.currentView = 'subjects';
-        state.currentSubject = null;
-        document.getElementById('homework-view').style.display = 'none';
-        document.getElementById('subjects-list').style.display = 'block';
-    } else if (state.currentView === 'subjects') {
-        state.currentView = 'groups';
-        state.currentGroup = null;
-        document.getElementById('subjects-list').style.display = 'none';
-        document.getElementById('group-selector').style.display = 'block';
-    }
-}
-
-// Функции для работы с уведомлениями
-function showNotificationSettings() {
-    const notificationSettings = document.getElementById('notification-settings');
-    notificationSettings.style.display = 'block';
-    
-    const subscribeBtn = document.getElementById('subscribe-btn');
-    subscribeBtn.textContent = state.isSubscribed ? 
-        '🔕 Отписаться от уведомлений' : 
-        '🔔 Подписаться на уведомления';
-}
-
-function toggleNotifications() {
-    tg.sendData(JSON.stringify({
-        action: state.isSubscribed ? 'unsubscribe' : 'subscribe'
-    }));
-}
-
-// Обработчик событий от Telegram WebApp
-tg.onEvent('viewportChanged', function(){
-    // Обновляем размеры при изменении viewport
-    tg.expand();
-});
-
-// В начале файла добавим обработчик сообщений от бота
-tg.onEvent('message', function(message) {
+async function updateSubjectStatuses() {
     try {
-        const data = JSON.parse(message.text);
-        if (data.type === 'homework_data') {
-            renderHomework(data);
-        }
-    } catch (e) {
-        console.error('Error parsing message:', e);
-    }
-});
+        const response = await tg.sendData(JSON.stringify({
+            action: 'get_statuses',
+            group: userGroup
+        }));
 
-// Обновим функцию renderHomework
-function renderHomework(homework) {
-    const content = document.getElementById('homework-content');
-    const files = document.getElementById('homework-files');
-    const actions = document.getElementById('homework-actions');
-    
-    content.innerHTML = `
-        <div class="homework-header">
-            <h2>${SUBJECTS[homework.subject]} ${homework.subject}</h2>
-            <button class="action-button back-button" onclick="goBack()">« Назад</button>
-        </div>
-        <div class="homework-content">
-            <p>${homework.text}</p>
+        Object.entries(response.statuses).forEach(([subject, status]) => {
+            const badge = document.getElementById(`status-${subject}`);
+            if (badge) {
+                badge.className = `status-badge status-${status}`;
+                badge.textContent = STATUS_EMOJI[status];
+            }
+        });
+    } catch (error) {
+        console.error('Ошибка при обновлении статусов:', error);
+    }
+}
+
+async function showHomework(subject) {
+    currentSubject = subject;
+    try {
+        const response = await tg.sendData(JSON.stringify({
+            action: 'get_homework',
+            subject: subject,
+            group: userGroup
+        }));
+
+        document.getElementById('subjects-container').classList.add('hidden');
+        const homeworkContainer = document.getElementById('homework-container');
+        homeworkContainer.classList.remove('hidden');
+
+        document.getElementById('current-subject').textContent = 
+            `${SUBJECT_EMOJI[subject]} ${subject}`;
+
+        const content = document.getElementById('homework-content');
+        content.innerHTML = `
+            <div class="homework-text">${response.text}</div>
             <div class="homework-info">
-                <small>Добавлено: ${homework.date}</small>
-                <small>Автор: ${homework.author}</small>
+                <div>📅 Дата: ${response.date}</div>
+                <div>👤 Автор: ${response.author}</div>
             </div>
-        </div>
-    `;
-    
-    // Отображаем файлы, если они есть
-    if (homework.files && homework.files.length > 0) {
-        files.innerHTML = homework.files.map(file => `
-            <div class="homework-file">
-                ${file.file_type === 'photo' 
-                    ? `<img src="${file.file_id}" class="file-preview" />`
-                    : `<a href="#" class="file-link" onclick="downloadFile('${file.file_id}')">
-                        📎 Скачать файл
-                      </a>`
-                }
+        `;
+
+        const filesContainer = document.getElementById('homework-files');
+        filesContainer.innerHTML = response.files.map(file => `
+            <div class="file-item">
+                <span class="file-icon">${file.type === 'photo' ? '🖼️' : '📎'}</span>
+                <span class="file-name">Прикрепленный файл</span>
             </div>
         `).join('');
+
+        updateHomeworkActions(response.status);
+    } catch (error) {
+        showNotification('Ошибка при загрузке задания');
     }
-    
-    // Добавляем кнопки действий
-    actions.innerHTML = `
-        <button class="action-button" onclick="markAsComplete()">
-            ✅ Отметить выполненным
-        </button>
-    `;
 }
 
-// Инициализация приложения
-document.addEventListener('DOMContentLoaded', () => {
-    renderGroupSelector(); // Всегда начинаем с выбора группы
-    tg.ready();
-}); 
+function updateHomeworkActions(status) {
+    const markDoneButton = document.getElementById('mark-done');
+    const uploadSolutionButton = document.getElementById('upload-solution');
+
+    if (status === 'completed') {
+        markDoneButton.style.display = 'none';
+        uploadSolutionButton.style.display = 'none';
+    } else {
+        markDoneButton.style.display = 'block';
+        uploadSolutionButton.style.display = 'block';
+    }
+}
+
+async function markHomeworkDone(subject) {
+    try {
+        await tg.sendData(JSON.stringify({
+            action: 'mark_done',
+            subject: subject,
+            group: userGroup
+        }));
+        showNotification('Задание отмечено как выполненное');
+        updateSubjectStatuses();
+    } catch (error) {
+        showNotification('Ошибка при отметке задания');
+    }
+}
+
+async function uploadSolution(subject) {
+    try {
+        await tg.sendData(JSON.stringify({
+            action: 'upload_solution',
+            subject: subject,
+            group: userGroup
+        }));
+    } catch (error) {
+        showNotification('Ошибка при загрузке решения');
+    }
+}
+
+function showNotification(message) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.classList.remove('hidden');
+    setTimeout(() => {
+        notification.classList.add('hidden');
+    }, 3000);
+}
+
+// Добавляем обработчик для получения данных от бота
+tg.onEvent('viewportChanged', () => {
+    tg.expand();
+});
