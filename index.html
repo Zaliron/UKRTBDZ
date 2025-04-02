@@ -8,25 +8,48 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="app">
-        <header>
-            <h1>🎓 Домашние задания</h1>
-            <div id="group-selector"></div>
-        </header>
-        <main>
-            <div id="subjects-list"></div>
-            <div id="homework-view" style="display: none;">
-                <div id="homework-content"></div>
-                <div id="homework-files"></div>
-                <div id="homework-actions"></div>
+    <div id="main-container">
+        <div id="header">
+            <h1>Домашние задания</h1>
+            <div id="group-info"></div>
+        </div>
+
+        <div id="subjects-container" class="container">
+            <!-- Предметы будут добавлены через JavaScript -->
+        </div>
+
+        <div id="homework-container" class="container hidden">
+            <div id="homework-header">
+                <button class="back-button">← Назад</button>
+                <h2 id="current-subject"></h2>
             </div>
-            <div id="notification-settings" style="display: none;">
-                <button id="subscribe-btn" class="action-button">
-                    🔔 Подписаться на уведомления
-                </button>
+            <div id="homework-content">
+                <!-- Содержимое домашнего задания -->
             </div>
-        </main>
+            <div id="homework-files">
+                <!-- Файлы домашнего задания -->
+            </div>
+            <div id="homework-actions">
+                <button id="mark-done" class="action-button">✅ Отметить выполненным</button>
+                <button id="upload-solution" class="action-button">📤 Загрузить решение</button>
+            </div>
+        </div>
+
+        <div id="archive-container" class="container hidden">
+            <div id="archive-header">
+                <button class="back-button">← Назад</button>
+                <h2>Архив заданий</h2>
+            </div>
+            <div id="archive-list">
+                <!-- Архивные задания -->
+            </div>
+        </div>
     </div>
+
+    <div id="notification" class="hidden">
+        <!-- Уведомления -->
+    </div>
+
     <script src="app.js"></script>
 </body>
-</html> 
+</html>
