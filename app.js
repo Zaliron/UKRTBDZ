@@ -40,7 +40,7 @@ const STATUS_EMOJI = {
 const state = {
     currentGroup: null,
     currentSubject: null,
-    currentView: 'groups', // 'groups', 'subjects', 'homework'
+    currentView: 'groups', // Всегда начинаем с выбора группы
     isSubscribed: false
 };
 
@@ -86,13 +86,14 @@ function renderSubjects() {
     const subjectsHtml = Object.entries(SUBJECTS).map(([subject, emoji]) => `
         <div class="subject-card" onclick="viewSubject('${subject}')">
             <div class="subject-title">${emoji} ${subject}</div>
-            <div class="subject-status">${STATUS_EMOJI.loading}</div>
+            <div class="subject-status">Нажмите для просмотра</div>
         </div>
     `).join('');
     
     subjectsList.innerHTML = `
         <div class="subjects-header">
             <h2>Предметы</h2>
+            <button class="action-button back-button" onclick="goBack()">« Назад</button>
             <button class="action-button" onclick="showNotificationSettings()">
                 🔔 Уведомления
             </button>
@@ -232,6 +233,6 @@ function renderHomework(homework) {
 
 // Инициализация приложения
 document.addEventListener('DOMContentLoaded', () => {
-    renderGroupSelector();
+    renderGroupSelector(); // Всегда начинаем с выбора группы
     tg.ready();
 }); 
