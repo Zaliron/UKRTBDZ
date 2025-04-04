@@ -587,7 +587,8 @@
                 </div>
             </div>
             
-            <div v-if="currentTab === 'active'" class="p-4 border-t border-[var(--tg-secondary-bg-color)]">
+            <!-- Кнопка добавления задания -->
+            <div v-if="currentTab === 'active' && showActionButtons" class="p-4 border-t border-[var(--tg-secondary-bg-color)]">
                 <button @click="showAddAssignmentModal" class="tg-button w-full py-3">
                     <i class="fas fa-plus mr-2"></i> Добавить задание
                 </button>
@@ -712,7 +713,7 @@
                 </div>
                 
                 <div class="flex flex-col gap-3">
-                    <template v-if="currentAssignment.status !== 'archived'">
+                    <template v-if="currentAssignment.status !== 'archived' && showActionButtons">
                         <button v-if="currentAssignment.status !== 'completed'" 
                                 @click="markAsCompleted" 
                                 class="tg-button py-3 flex items-center justify-center">
@@ -721,12 +722,6 @@
                         
                         <button @click="showUploadModal" class="bg-[var(--tg-secondary-bg-color)] py-3 rounded-lg flex items-center justify-center">
                             <i class="fas fa-file-upload mr-2"></i> Загрузить решение
-                        </button>
-                        
-                        <button v-if="currentAssignment.status === 'completed'" 
-                                @click="uncompleteAssignment" 
-                                class="bg-yellow-500 py-3 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-undo mr-2"></i> Вернуть в работу
                         </button>
                     </template>
                     
@@ -1248,7 +1243,6 @@
                 
                 const showAddAssignmentModal = () => {
                     if (!checkPermissions()) return;
-                    
                     newAssignment.value.subject = currentSubject.value.name;
                     newAssignment.value.subjectId = currentSubject.value.id;
                     newAssignment.value.group = selectedGroup.value;
@@ -1256,6 +1250,7 @@
                 };
                 
                 const showUploadModal = () => {
+                    if (!checkPermissions()) return;
                     uploadedFiles.value = [];
                     activeModal.value = 'file-upload';
                 };
@@ -1334,6 +1329,8 @@
                 };
                 
                 const archiveAssignment = () => {
+                    if (!checkPermissions()) return;
+                    
                     currentAssignment.value.status = 'archived';
                     currentAssignment.value.archivedDate = new Date();
                     sendDataToBot('archive_assignment', { id: currentAssignment.value.id });
@@ -1382,6 +1379,8 @@
                 };
                 
                 const submitSolution = () => {
+                    if (!checkPermissions()) return;
+                    
                     // Add uploaded files to the assignment
                     uploadedFiles.value.forEach(file => {
                         currentAssignment.value.studentFiles.push({
@@ -1401,6 +1400,8 @@
                 };
                 
                 const createAssignment = async () => {
+                    if (!checkPermissions()) return;
+                    
                     const currentFiles = [...newAssignment.value.files];
                     
                     const newAssignmentObj = {
@@ -1547,6 +1548,11 @@
                     }, 1000);
                 });
                 
+                // Также нужно скрыть кнопки добавления/редактирования для пользователей без прав
+                const showActionButtons = computed(() => {
+                    return context.user_data?.isAllowed === true;
+                });
+                
                 return {
                     // States
                     currentView,
@@ -1575,6 +1581,7 @@
                     // Computed properties
                     filteredActiveAssignments,
                     filteredArchivedAssignments,
+                    showActionButtons,
                     
                     // Methods
                     isOverdue,
