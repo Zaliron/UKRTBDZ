@@ -1182,18 +1182,23 @@
                         WebApp.setBackgroundColor('#17212b');
                         WebApp.setHeaderColor('#2b3647');
                         
-                        // Set Telegram user info if available
-                        const user = initDataUnsafe.user;
-                        if (user) {
-                            console.log('Telegram user:', user);
-                        }
+                        // Получаем параметры из URL
+                        const urlParams = new URLSearchParams(WebApp.initData);
+                        const isAllowed = urlParams.get('allowed') === 'true';
+                        const username = urlParams.get('username');
                         
-                        // Проверяем сначала localStorage, затем параметры инициализации
+                        // Сохраняем информацию о правах в приложении
+                        context.user_data = {
+                            isAllowed: isAllowed,
+                            username: username
+                        };
+                        
+                        // Проверяем группу
                         const savedGroup = localStorage.getItem('selectedGroup');
                         if (savedGroup && botGroups.includes(savedGroup)) {
                             selectedGroup.value = savedGroup;
-                        } else if (initData.includes('group=')) {
-                            const groupParam = new URLSearchParams(initData).get('group');
+                        } else if (urlParams.has('group')) {
+                            const groupParam = urlParams.get('group');
                             if (botGroups.includes(groupParam)) {
                                 selectedGroup.value = groupParam;
                                 localStorage.setItem('selectedGroup', groupParam);
@@ -1242,6 +1247,8 @@
                 };
                 
                 const showAddAssignmentModal = () => {
+                    if (!checkPermissions()) return;
+                    
                     newAssignment.value.subject = currentSubject.value.name;
                     newAssignment.value.subjectId = currentSubject.value.id;
                     newAssignment.value.group = selectedGroup.value;
@@ -1522,6 +1529,15 @@
                     }
                 };
                 
+                // Добавляем метод для проверки прав
+                const checkPermissions = () => {
+                    if (!context.user_data?.isAllowed) {
+                        showNotice('У вас нет прав для добавления заданий', 'fas fa-exclamation-circle');
+                        return false;
+                    }
+                    return true;
+                };
+                
                 // Initialize
                 onMounted(() => {
                     initTelegramWebApp();
@@ -1601,7 +1617,8 @@
                     closeImageViewer,
                     nextImage,
                     prevImage,
-                    forceCloseModal
+                    forceCloseModal,
+                    checkPermissions
                 };
             }
         }).mount('#app');
