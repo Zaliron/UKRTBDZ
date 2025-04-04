@@ -1185,24 +1185,31 @@
                         // Set Telegram user info if available
                         const user = initDataUnsafe.user;
                         if (user) {
-                            // You can use user data here if needed
                             console.log('Telegram user:', user);
                         }
                         
-                        // Set initial group from Telegram init data if available
-                        if (initData.includes('group=')) {
+                        // Проверяем сначала localStorage, затем параметры инициализации
+                        const savedGroup = localStorage.getItem('selectedGroup');
+                        if (savedGroup && botGroups.includes(savedGroup)) {
+                            selectedGroup.value = savedGroup;
+                        } else if (initData.includes('group=')) {
                             const groupParam = new URLSearchParams(initData).get('group');
                             if (botGroups.includes(groupParam)) {
                                 selectedGroup.value = groupParam;
+                                localStorage.setItem('selectedGroup', groupParam);
                             } else {
                                 selectedGroup.value = botGroups[0];
+                                localStorage.setItem('selectedGroup', botGroups[0]);
                             }
                         } else {
                             selectedGroup.value = botGroups[0];
+                            localStorage.setItem('selectedGroup', botGroups[0]);
                         }
                     } else {
-                        // Fallback for local development
-                        selectedGroup.value = botGroups[0];
+                        // Fallback для локальной разработки
+                        const savedGroup = localStorage.getItem('selectedGroup');
+                        selectedGroup.value = savedGroup && botGroups.includes(savedGroup) ? savedGroup : botGroups[0];
+                        localStorage.setItem('selectedGroup', selectedGroup.value);
                     }
                 };
                 
@@ -1284,6 +1291,7 @@
                 // Other methods
                 const selectGroup = (group) => {
                     selectedGroup.value = group;
+                    localStorage.setItem('selectedGroup', group); // Сохраняем выбранную группу
                     sendDataToBot('select_group', { group });
                     closeModal();
                     showNotice('Группа изменена на ' + group, 'fas fa-check-circle');
