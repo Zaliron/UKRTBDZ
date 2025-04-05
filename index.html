@@ -1178,15 +1178,15 @@
                         WebApp.setHeaderColor('#2b3647');
                         
                         // Получаем параметры из URL
-                        const urlParams = new URLSearchParams(WebApp.initData);
+                        const urlParams = new URLSearchParams(window.location.search);
                         const isAllowed = urlParams.get('allowed') === 'true';
                         const username = urlParams.get('username');
                         
-                        // Сохраняем информацию о правах в приложении
-                        context.user_data = {
+                        // Инициализируем context.user_data как реактивный объект
+                        context.user_data = ref({
                             isAllowed: isAllowed,
                             username: username
-                        };
+                        });
                         
                         // Проверяем группу
                         const savedGroup = localStorage.getItem('selectedGroup');
@@ -1210,7 +1210,16 @@
                         const savedGroup = localStorage.getItem('selectedGroup');
                         selectedGroup.value = savedGroup && botGroups.includes(savedGroup) ? savedGroup : botGroups[0];
                         localStorage.setItem('selectedGroup', selectedGroup.value);
+                        
+                        // Для локальной разработки устанавливаем права по умолчанию
+                        context.user_data = ref({
+                            isAllowed: false,
+                            username: null
+                        });
                     }
+                    
+                    // Убираем загрузку после инициализации
+                    isLoading.value = false;
                 };
                 
                 const openFile = (file) => {
@@ -1532,7 +1541,7 @@
                 
                 // Добавляем метод для проверки прав
                 const checkPermissions = () => {
-                    if (!context.user_data?.isAllowed) {
+                    if (!context.user_data?.value?.isAllowed) {
                         showNotice('У вас нет прав для добавления заданий', 'fas fa-exclamation-circle');
                         return false;
                     }
@@ -1550,7 +1559,7 @@
                 
                 // Также нужно скрыть кнопки добавления/редактирования для пользователей без прав
                 const showActionButtons = computed(() => {
-                    return context.user_data?.isAllowed === true;
+                    return context.user_data?.value?.isAllowed === true;
                 });
                 
                 return {
