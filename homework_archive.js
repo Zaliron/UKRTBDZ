@@ -57,7 +57,4 @@ const HomeworkArchive = {
 
         return assignment;
     }
-};
-
-// Экспорт для использования в других файлах
-export default HomeworkArchive; 
+}; 
