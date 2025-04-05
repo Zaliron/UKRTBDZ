@@ -401,6 +401,9 @@
                     <button @click="viewArchivedSubjects" class="bg-[var(--tg-secondary-bg-color)] p-2 rounded-lg">
                         <i class="fas fa-archive"></i>
                     </button>
+                    <button @click="showAdminKeyModal" class="bg-[var(--tg-secondary-bg-color)] p-2 rounded-lg" :class="{'text-[var(--tg-button-color)]': isAdmin}">
+                        <i class="fas fa-key"></i>
+                    </button>
                 </div>
             </div>
             
@@ -897,9 +900,47 @@
                 </button>
             </div>
         </transition>
+
+        <!-- Admin Key Modal -->
+        <div v-if="activeModal === 'admin-key'" class="backdrop" @click.self="closeModal">
+            <div class="modal-content">
+                <div class="p-4 border-b border-[var(--tg-secondary-bg-color)] flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Ключ администратора</h3>
+                    <button @click="closeModal" class="text-[var(--tg-hint-color)]">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="p-4">
+                    <div v-if="isAdmin" class="mb-4 text-center">
+                        <i class="fas fa-check-circle text-green-500 text-4xl mb-2"></i>
+                        <p>У вас есть права администратора</p>
+                    </div>
+                    <div v-else>
+                        <div class="mb-4">
+                            <label class="block text-sm text-[var(--tg-hint-color)] mb-1">Введите ключ администратора</label>
+                            <input v-model="adminKeyInput" type="password" class="w-full bg-[var(--tg-secondary-bg-color)] rounded-lg p-3 border-none" placeholder="Введите ключ...">
+                        </div>
+                        <button @click="submitAdminKey" class="tg-button w-full py-3">
+                            Подтвердить
+                        </button>
+                    </div>
+                    <div v-if="isAdmin" class="mt-4">
+                        <button @click="removeAdminRights" class="bg-red-500 text-white w-full py-3 rounded-lg">
+                            Удалить права администратора
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        // Создаем глобальный объект context
+        const context = {
+            user_data: null
+        };
+        
         const { createApp, ref, computed, onMounted, nextTick } = Vue;
         
         createApp({
@@ -932,6 +973,9 @@
                 // Data
                 const selectedGroup = ref('');
                 const botGroups = ['9ИСП-12К-24', '9КСК-10-24', '9ИСП-111К-24', '9ИКСС-13-24'];
+                const ADMIN_KEY = 'admin123'; // Здесь укажите ваш ключ администратора
+                const isAdmin = ref(localStorage.getItem('isAdmin') === 'true');
+                const adminKeyInput = ref('');
                 
                 const botSubjects = [
                     { id: 1, name: 'Башкирский язык', emoji: '📚' },
@@ -1168,25 +1212,27 @@
                 
                 // Telegram WebApp methods
                 const initTelegramWebApp = () => {
-                    if (WebApp) {
-                        // Expand app to full viewport
-                        WebApp.expand();
-                        
-                        // Set theme colors
-                        colorScheme.value = WebApp.colorScheme || 'dark';
-                        WebApp.setBackgroundColor('#17212b');
-                        WebApp.setHeaderColor('#2b3647');
-                        
+                    try {
                         // Получаем параметры из URL
                         const urlParams = new URLSearchParams(window.location.search);
                         const isAllowed = urlParams.get('allowed') === 'true';
                         const username = urlParams.get('username');
                         
-                        // Инициализируем context.user_data как реактивный объект
-                        context.user_data = ref({
+                        // Инициализируем данные пользователя
+                        context.user_data = {
                             isAllowed: isAllowed,
                             username: username
-                        });
+                        };
+                        
+                        if (WebApp) {
+                            // Expand app to full viewport
+                            WebApp.expand();
+                            
+                            // Set theme colors
+                            colorScheme.value = WebApp.colorScheme || 'dark';
+                            WebApp.setBackgroundColor('#17212b');
+                            WebApp.setHeaderColor('#2b3647');
+                        }
                         
                         // Проверяем группу
                         const savedGroup = localStorage.getItem('selectedGroup');
@@ -1205,21 +1251,14 @@
                             selectedGroup.value = botGroups[0];
                             localStorage.setItem('selectedGroup', botGroups[0]);
                         }
-                    } else {
-                        // Fallback для локальной разработки
-                        const savedGroup = localStorage.getItem('selectedGroup');
-                        selectedGroup.value = savedGroup && botGroups.includes(savedGroup) ? savedGroup : botGroups[0];
-                        localStorage.setItem('selectedGroup', selectedGroup.value);
                         
-                        // Для локальной разработки устанавливаем права по умолчанию
-                        context.user_data = ref({
-                            isAllowed: false,
-                            username: null
-                        });
+                        // Убираем загрузку после успешной инициализации
+                        isLoading.value = false;
+                    } catch (error) {
+                        console.error('Error initializing WebApp:', error);
+                        // В случае ошибки все равно убираем загрузку
+                        isLoading.value = false;
                     }
-                    
-                    // Убираем загрузку после инициализации
-                    isLoading.value = false;
                 };
                 
                 const openFile = (file) => {
@@ -1541,25 +1580,45 @@
                 
                 // Добавляем метод для проверки прав
                 const checkPermissions = () => {
-                    if (!context.user_data?.value?.isAllowed) {
+                    if (!isAdmin.value) {
                         showNotice('У вас нет прав для добавления заданий', 'fas fa-exclamation-circle');
                         return false;
                     }
                     return true;
                 };
                 
+                // Admin methods
+                const showAdminKeyModal = () => {
+                    activeModal.value = 'admin-key';
+                };
+
+                const submitAdminKey = () => {
+                    if (adminKeyInput.value === ADMIN_KEY) {
+                        isAdmin.value = true;
+                        localStorage.setItem('isAdmin', 'true');
+                        showNotice('Права администратора получены', 'fas fa-check-circle');
+                        closeModal();
+                    } else {
+                        showNotice('Неверный ключ администратора', 'fas fa-exclamation-circle');
+                    }
+                    adminKeyInput.value = '';
+                };
+
+                const removeAdminRights = () => {
+                    isAdmin.value = false;
+                    localStorage.removeItem('isAdmin');
+                    showNotice('Права администратора удалены', 'fas fa-user-slash');
+                    closeModal();
+                };
+                
                 // Initialize
                 onMounted(() => {
                     initTelegramWebApp();
-                    
-                    setTimeout(() => {
-                        isLoading.value = false;
-                    }, 1000);
                 });
                 
                 // Также нужно скрыть кнопки добавления/редактирования для пользователей без прав
                 const showActionButtons = computed(() => {
-                    return context.user_data?.value?.isAllowed === true;
+                    return isAdmin.value === true;
                 });
                 
                 return {
@@ -1574,6 +1633,8 @@
                     notificationMessage,
                     notificationIcon,
                     imageViewer,
+                    isAdmin,
+                    adminKeyInput,
                     
                     // Data
                     selectedGroup,
@@ -1634,7 +1695,10 @@
                     nextImage,
                     prevImage,
                     forceCloseModal,
-                    checkPermissions
+                    checkPermissions,
+                    showAdminKeyModal,
+                    submitAdminKey,
+                    removeAdminRights
                 };
             }
         }).mount('#app');
