@@ -108,7 +108,4 @@ const HomeworkManager = {
         const data = this.loadHomework();
         return data[group] || {};
     }
-};
-
-// Экспорт для использования в других файлах
-export default HomeworkManager; 
+}; 
