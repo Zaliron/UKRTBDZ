@@ -7,6 +7,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.min.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Подключаем наши модули -->
+    <script src="homework.js"></script>
+    <script src="homework_archive.js"></script>
+    <script src="homework_status.js"></script>
+
     <style>
         :root {
             --tg-bg-color: #17212b;
@@ -370,12 +377,18 @@
             }
         }
     </style>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script type="module">
-        import HomeworkManager from './homework.js';
-        import HomeworkArchive from './homework_archive.js';
-        import HomeworkStatus from './homework_status.js';
+</head>
+<body>
+    <div id="app">
+        <!-- Rest of the component template -->
+    </div>
 
+    <script>
+        // Создаем глобальный объект context
+        const context = {
+            user_data: null
+        };
+        
         const { createApp, ref, computed, onMounted, nextTick } = Vue;
         
         createApp({
@@ -662,14 +675,14 @@
                             username: username
                         };
                         
-                        if (WebApp) {
-                            // Expand app to full viewport
-                            WebApp.expand();
-                            
-                            // Set theme colors
-                            colorScheme.value = WebApp.colorScheme || 'dark';
-                            WebApp.setBackgroundColor('#17212b');
-                            WebApp.setHeaderColor('#2b3647');
+                    if (WebApp) {
+                        // Expand app to full viewport
+                        WebApp.expand();
+                        
+                        // Set theme colors
+                        colorScheme.value = WebApp.colorScheme || 'dark';
+                        WebApp.setBackgroundColor('#17212b');
+                        WebApp.setHeaderColor('#2b3647');
                         }
                         
                         // Проверяем группу
@@ -691,7 +704,7 @@
                         }
                         
                         // Убираем загрузку после успешной инициализации
-                        isLoading.value = false;
+                    isLoading.value = false;
                     } catch (error) {
                         console.error('Error initializing WebApp:', error);
                         // В случае ошибки все равно убираем загрузку
