@@ -404,6 +404,9 @@
                     <button @click="showAdminKeyModal" class="bg-[var(--tg-secondary-bg-color)] p-2 rounded-lg" :class="{'text-[var(--tg-button-color)]': isAdmin}">
                         <i class="fas fa-key"></i>
                     </button>
+                    <button v-if="isAdmin" @click="showManageGroupsModal" class="bg-[var(--tg-secondary-bg-color)] p-2 rounded-lg">
+                        <i class="fas fa-users-cog"></i>
+                    </button>
                 </div>
             </div>
             
@@ -933,6 +936,52 @@
                 </div>
             </div>
         </div>
+
+        <!-- Добавляем модальное окно управления группами -->
+        <div v-if="activeModal === 'manage-groups'" class="backdrop" @click.self="closeModal">
+            <div class="modal-content">
+                <div class="p-4 border-b border-[var(--tg-secondary-bg-color)] flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">Управление группами</h3>
+                    <button @click="closeModal" class="text-[var(--tg-hint-color)]">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="p-4">
+                    <!-- Форма добавления новой группы -->
+                    <div class="mb-6">
+                        <h4 class="text-sm font-medium mb-2">Добавить новую группу</h4>
+                        <div class="flex gap-2">
+                            <input v-model="newGroupName" 
+                                   type="text" 
+                                   class="flex-1 bg-[var(--tg-secondary-bg-color)] rounded-lg p-2 border-none"
+                                   placeholder="Название группы">
+                            <button @click="addNewGroup" 
+                                    class="tg-button px-4"
+                                    :disabled="!newGroupName">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Список существующих групп -->
+                    <div>
+                        <h4 class="text-sm font-medium mb-2">Существующие группы</h4>
+                        <div class="space-y-2">
+                            <div v-for="group in botGroups" 
+                                 :key="group" 
+                                 class="flex justify-between items-center bg-[var(--tg-secondary-bg-color)] p-3 rounded-lg">
+                                <span>{{ group }}</span>
+                                <button @click="confirmDeleteGroup(group)" 
+                                        class="text-red-500 hover:text-red-400">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1099,6 +1148,9 @@
                 });
                 
                 const uploadedFiles = ref([]);
+                
+                // Добавляем новые элементы
+                const newGroupName = ref('');
                 
                 // Computed properties
                 const filteredSubjects = computed(() => {
@@ -1611,6 +1663,48 @@
                     closeModal();
                 };
                 
+                // Добавляем новые методы
+                const showManageGroupsModal = () => {
+                    if (!isAdmin.value) {
+                        showNotice('У вас нет прав для управления группами', 'fas fa-exclamation-circle');
+                        return;
+                    }
+                    activeModal.value = 'manage-groups';
+                };
+
+                const addNewGroup = () => {
+                    if (!newGroupName.value.trim()) return;
+                    
+                    if (botGroups.includes(newGroupName.value.trim())) {
+                        showNotice('Такая группа уже существует', 'fas fa-exclamation-circle');
+                        return;
+                    }
+
+                    botGroups.push(newGroupName.value.trim());
+                    showNotice('Группа успешно добавлена', 'fas fa-check-circle');
+                    newGroupName.value = '';
+                };
+
+                const confirmDeleteGroup = (group) => {
+                    showConfirmationModal(
+                        'Удалить группу?',
+                        `Вы уверены, что хотите удалить группу "${group}"? Все данные группы будут потеряны.`,
+                        () => deleteGroup(group)
+                    );
+                };
+
+                const deleteGroup = (group) => {
+                    const groups = botGroups.filter(g => g !== group);
+                    botGroups.value = groups;
+                    
+                    // Если удаляем текущую группу, переключаемся на первую доступную
+                    if (selectedGroup.value === group && groups.length > 0) {
+                        selectedGroup.value = groups[0];
+                    }
+                    
+                    showNotice('Группа успешно удалена', 'fas fa-check-circle');
+                };
+                
                 // Initialize
                 onMounted(() => {
                     initTelegramWebApp();
@@ -1647,6 +1741,7 @@
                     assignments,
                     newAssignment,
                     uploadedFiles,
+                    newGroupName,
                     
                     // Computed properties
                     filteredActiveAssignments,
@@ -1698,7 +1793,10 @@
                     checkPermissions,
                     showAdminKeyModal,
                     submitAdminKey,
-                    removeAdminRights
+                    removeAdminRights,
+                    showManageGroupsModal,
+                    addNewGroup,
+                    confirmDeleteGroup
                 };
             }
         }).mount('#app');
