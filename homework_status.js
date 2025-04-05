@@ -67,7 +67,4 @@ const HomeworkStatus = {
             this.saveStatus(statusData);
         }
     }
-};
-
-// Экспорт для использования в других файлах
-export default HomeworkStatus; 
+}; 
