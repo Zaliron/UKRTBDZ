@@ -3,1687 +3,478 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Домашние задания</title>
+    <title>Резюме - Лагутин Глеб Сергеевич</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.min.js"></script>
     <style>
-        :root {
-            --tg-bg-color: #17212b;
-            --tg-secondary-bg-color: #232e3c;
-            --tg-text-color: #ffffff;
-            --tg-hint-color: #7f91a4;
-            --tg-link-color: #5d9cec;
-            --tg-button-color: #5288c1;
-            --tg-button-text-color: #ffffff;
-            --tg-section-bg-color: #2b3647;
-            --tg-accent-color: #2ea6ff;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
         body {
-            background-color: var(--tg-bg-color);
-            color: var(--tg-text-color);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
         }
         
-        .tg-button {
-            background-color: var(--tg-button-color);
-            color: var(--tg-button-text-color);
-            border-radius: 10px;
-            padding: 10px 16px;
-            font-weight: 500;
-            display: inline-block;
-            transition: background-color 0.2s;
+        .gradient-bg {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
         }
         
-        .tg-button:hover {
-            background-color: #3f6a9b;
-        }
-        
-        .subject-item {
-            transition: transform 0.2s, background-color 0.2s;
-        }
-        
-        .subject-item:hover {
-            transform: translateY(-2px);
-            background-color: var(--tg-section-bg-color);
-        }
-        
-        .assignment-card {
-            border-left: 4px solid;
-            transition: transform 0.2s;
-        }
-        
-        .assignment-card:hover {
-            transform: translateX(5px);
-        }
-        
-        .status-badge {
-            font-size: 0.75rem;
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-        
-        .new-badge {
-            background-color: #4a9efb;
-        }
-        
-        .viewed-badge {
-            background-color: #6c757d;
-        }
-        
-        .completed-badge {
-            background-color: #28a745;
-        }
-        
-        .archived-badge {
-            background-color: #6f42c1;
-        }
-        
-        .overdue-badge {
-            background-color: #dc3545;
-        }
-        
-        .backdrop {
-            background-color: rgba(0, 0, 0, 0.5);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 100;
-        }
-        
-        .modal-content {
-            max-height: 90vh;
-            overflow-y: auto;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 101;
-            width: 90%;
-            max-width: 500px;
-            background-color: var(--tg-section-bg-color);
-            border-radius: 10px;
-        }
-        
-        .file-attachment {
-            border-radius: 10px;
-            transition: transform 0.2s;
-        }
-        
-        .file-attachment:hover {
-            transform: scale(1.02);
-        }
-        
-        .loading-spinner {
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .custom-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .custom-scroll::-webkit-scrollbar-track {
-            background: var(--tg-secondary-bg-color);
-        }
-        
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: var(--tg-hint-color);
-            border-radius: 3px;
-        }
-        
-        /* Tab styles */
-        .tab-button {
-            position: relative;
-            padding: 0.5rem 1rem;
+        .skill-badge {
             transition: all 0.3s ease;
         }
-
-        .tab-button.active {
-            color: var(--tg-button-color);
+        
+        .skill-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
-
-        .tab-button.active::after {
+        
+        .project-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            border-left-color: #3b82f6;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .timeline-item:not(:last-child)::after {
             content: '';
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background-color: var(--tg-button-color);
+            left: 16px;
+            top: 32px;
+            height: calc(100% - 32px);
+            width: 2px;
+            background-color: #e2e8f0;
         }
 
-        /* Animation for new assignment */
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .new-assignment {
-            animation: slideUp 0.3s ease-out forwards;
-        }
-        
-        /* Animation for archived assignment */
-        @keyframes fadeOut {
-            from { opacity: 1; transform: scale(1); }
-            to { opacity: 0; transform: scale(0.95); }
-        }
-
-        .archiving-assignment {
-            animation: fadeOut 0.3s ease-out forwards;
-        }
-
-        /* Notification styles */
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 102;
-            width: 90%;
-            max-width: 500px;
-            background-color: var(--tg-section-bg-color);
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Modal transitions */
-        .modal-enter-active, .modal-leave-active {
-            transition: opacity 0.3s ease;
-        }
-
-        .modal-enter-from, .modal-leave-to {
-            opacity: 0;
-        }
-
-        /* WebApp-specific styles */
-        .header-fixed {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            padding-top: env(safe-area-inset-top);
-        }
-
-        .content-padded {
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        /* Telegram-like buttons */
-        .tg-primary-button {
-            background-color: var(--tg-button-color);
-            color: var(--tg-text-color);
-            border: none;
-            border-radius: 10px;
-            padding: 10px 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .tg-primary-button:hover {
-            background-color: #3f6a9b;
-        }
-
-        .tg-secondary-button {
-            background-color: var(--tg-secondary-bg-color);
-            color: var(--tg-text-color);
-            border: none;
-            border-radius: 10px;
-            padding: 10px 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .tg-secondary-button:hover {
-            background-color: #1e2733;
-        }
-
-        /* Image preview styles */
-        .image-preview-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .image-preview {
-            position: relative;
-            width: 100%;
-            padding-bottom: 100%;
-            border-radius: 8px;
+        /* Gallery styles */
+        .gallery-item {
+            transition: all 0.3s ease;
             overflow: hidden;
-            background-color: var(--tg-secondary-bg-color);
+            border-radius: 0.5rem;
         }
 
-        .image-preview img {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .gallery-item:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        }
+
+        .gallery-item img {
+            transition: transform 0.5s ease;
+            object-fit: cover;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            cursor: pointer;
-            transition: transform 0.2s;
         }
 
-        .image-preview img:hover {
-            transform: scale(1.05);
+        .gallery-item:hover img {
+            transform: scale(1.1);
         }
 
-        .image-count-badge {
-            position: absolute;
-            bottom: 4px;
-            right: 4px;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-        }
-
-        .image-modal {
+        /* Modal styles */
+        .modal {
+            display: none;
             position: fixed;
-            top: 0;
+            z-index: 100;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.9);
-            z-index: 103;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            overflow: auto;
         }
 
-        .image-modal-content {
+        .modal-content {
+            margin: auto;
+            display: block;
             max-width: 90%;
             max-height: 90%;
+            margin-top: 5vh;
         }
 
-        .image-modal-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 1;
-        }
-
-        .image-modal-prev {
-            left: 20px;
-        }
-
-        .image-modal-next {
-            right: 20px;
-        }
-
-        .image-modal-close {
+        .close {
             position: absolute;
             top: 20px;
-            right: 20px;
-            background-color: rgba(0, 0, 0, 0.5);
+            right: 35px;
             color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
             cursor: pointer;
-            z-index: 1;
         }
 
-        /* Dark mode aware */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --tg-bg-color: #18222d;
-                --tg-secondary-bg-color: #1e2733;
-            }
+        .close:hover {
+            color: #bbb;
+        }
+
+        .prev, .next {
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            width: auto;
+            padding: 16px;
+            margin-top: -50px;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            transition: 0.3s;
+            user-select: none;
+            background-color: rgba(0,0,0,0.5);
+            border-radius: 0 3px 3px 0;
+        }
+
+        .next {
+            right: 0;
+            border-radius: 3px 0 0 3px;
+        }
+
+        .prev:hover, .next:hover {
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        .caption {
+            margin: auto;
+            display: block;
+            width: 80%;
+            text-align: center;
+            color: #ccc;
+            padding: 10px 0;
+            font-size: 1.2rem;
         }
     </style>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
-<body>
-    <div id="app">
-        <!-- Image Preview Modal -->
-        <div v-if="imageViewer.open" class="image-modal" @click.self="closeImageViewer">
-            <button class="image-modal-close" @click="closeImageViewer">
-                <i class="fas fa-times"></i>
-            </button>
-            <button class="image-modal-nav image-modal-prev" v-if="imageViewer.currentIndex > 0" @click="prevImage">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <img :src="imageViewer.images[imageViewer.currentIndex]" class="image-modal-content" @click.stop="">
-            <button class="image-modal-nav image-modal-next" v-if="imageViewer.currentIndex < imageViewer.images.length - 1" @click="nextImage">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
+<body class="text-gray-800">
+    <!-- Забавное сообщение -->
+    <div class="funny-message hidden md:block">
+        <span class="text-blue-600">Сайт делал как можно скорее, так что могут быть баги. Сорри :></span>
+    </div>
 
-        <!-- Main Screen -->
-        <div class="min-h-screen flex flex-col" v-if="currentView === 'main'">
-            <!-- Header -->
-            <div class="bg-[var(--tg-section-bg-color)] p-4 flex items-center justify-between header-fixed">
-                <h1 class="text-xl font-bold">Домашние задания</h1>
-                <div class="flex items-center space-x-3">
-                    <button @click="toggleGroupSelect" class="flex items-center space-x-1 bg-[var(--tg-secondary-bg-color)] px-3 py-2 rounded-lg text-sm">
-                        <span>{{ selectedGroup }}</span>
-                        <i class="fas fa-chevron-down text-xs"></i>
-                    </button>
-                    <button @click="viewArchivedSubjects" class="bg-[var(--tg-secondary-bg-color)] p-2 rounded-lg">
-                        <i class="fas fa-archive"></i>
-                    </button>
-                    <button @click="showAdminKeyModal" class="bg-[var(--tg-secondary-bg-color)] p-2 rounded-lg" :class="{'text-[var(--tg-button-color)]': isAdmin}">
-                        <i class="fas fa-key"></i>
-                    </button>
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <header class="gradient-bg rounded-xl shadow-lg text-white p-8 mb-8">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="w-32 h-32 rounded-full bg-white flex items-center justify-center shadow-md mb-6 md:mb-0 md:mr-8">
+                    <i class="fas fa-user text-5xl text-blue-500"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">Лагутин Глеб Сергеевич</h1>
+                    <p class="text-xl opacity-90 mb-4">16 лет, Уфа</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">Frontend разработка</span>
+                        <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">Telegram боты</span>
+                        <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">Дизайн</span>
+                        <span class="bg-white bg-opacity-20 px-3 py-1 rounded-full text-sm">Администрирование сайтов</span>
+                    </div>
                 </div>
             </div>
-            
-            <!-- Content -->
-            <div class="flex-1 overflow-y-auto custom-scroll p-4 content-padded" v-if="!isLoading">
-                <h2 class="text-lg font-semibold mb-4 flex items-center">
-                    <i class="fas fa-book-open mr-2"></i>
-                    Текущие предметы
-                </h2>
-                
-                <div class="grid grid-cols-1 gap-3">
-                    <div v-for="subject in filteredSubjects" :key="subject.id" 
-                         @click="viewAssignments(subject)"
-                         class="subject-item bg-[var(--tg-section-bg-color)] p-4 rounded-lg shadow-md cursor-pointer flex items-center justify-between">
+        </header>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Left Column -->
+            <div class="md:col-span-1 space-y-8">
+                <!-- Education -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-graduation-cap text-blue-500 mr-3"></i>
+                        Образование
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="font-medium">УКРТБ</h3>
+                            <p class="text-sm text-gray-600">Информационные системы и программирование</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skills -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-code text-blue-500 mr-3"></i>
+                        Навыки
+                    </h2>
+                    <div class="space-y-3">
+                        <div>
+                            <h3 class="font-medium mb-2">Разработка</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="skill-badge bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Telegram боты на python</span>
+                                <span class="skill-badge bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">HTML/CSS</span>
+                                <span class="skill-badge bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">JavaScript</span>
+                                <span class="skill-badge bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Tilda</span>
+                                <span class="skill-badge bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">1С</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-medium mb-2">Дизайн</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="skill-badge bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">Графический дизайн</span>
+                                <span class="skill-badge bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">Баннеры</span>
+                                <span class="skill-badge bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">Визитки</span>
+                                <span class="skill-badge bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">Флаеры</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-medium mb-2">Администрирование сайтов</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="skill-badge bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">Битрикс24</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-envelope text-blue-500 mr-3"></i>
+                        Контакты
+                    </h2>
+                    <div class="space-y-3">
                         <div class="flex items-center">
-                            <span class="text-2xl mr-3">{{ subject.emoji }}</span>
-                            <div>
-                                <div>{{ subject.name }}</div>
-                                <div class="text-xs text-[var(--tg-hint-color)]">
-                                    Архив: {{ getArchivedCount(selectedGroup, subject.name) }} заданий
-                                </div>
-                            </div>
+                            <i class="fas fa-phone-alt text-gray-500 mr-3"></i>
+                            <span class="text-gray-700">Телефон: по запросу</span>
                         </div>
                         <div class="flex items-center">
-                            <div v-if="getPendingCount(selectedGroup, subject.id) > 0" class="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center mr-2">
-                                {{ getPendingCount(selectedGroup, subject.id) }}
-                            </div>
-                            <i class="fas fa-chevron-right text-[var(--tg-hint-color)]"></i>
+                            <i class="fab fa-telegram text-blue-400 mr-3"></i>
+                            <span class="text-gray-700">Telegram: @RaiveLich</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-map-marker-alt text-gray-500 mr-3"></i>
+                            <span class="text-gray-700">Уфа, Россия</span>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <div v-else class="flex-1 flex items-center justify-center">
-                <div class="text-center">
-                    <i class="fas fa-spinner loading-spinner text-4xl text-[var(--tg-button-color)] mb-2"></i>
-                    <p>Загрузка заданий...</p>
+
+            <!-- Right Column -->
+            <div class="md:col-span-2 space-y-8">
+                <!-- About -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-user-tie text-blue-500 mr-3"></i>
+                        Обо мне
+                    </h2>
+                    <p class="text-gray-700">
+                        Имею разносторонний опыт в разработке Telegram ботов, веб-разработке, дизайне и администрировании сайтов. Быстро обучаюсь новому и стремлюсь достичь большего.
+                    </p>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Assignments List -->
-        <div class="min-h-screen flex flex-col" v-if="currentView === 'assignments'">
-            <!-- Header -->
-            <div class="bg-[var(--tg-section-bg-color)] p-4 flex items-center justify-between header-fixed">
-                <button @click="currentView = 'main'" class="flex items-center">
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    <span>Назад</span>
-                </button>
-                <h1 class="text-xl font-bold">{{ currentSubject.name }}</h1>
-                <button @click="showAddAssignmentModal" class="text-[var(--tg-link-color)]">
-                    <i class="fas fa-plus"></i>
-                </button>
-            </div>
 
-            <!-- Tabs -->
-            <div class="flex border-b border-[var(--tg-secondary-bg-color)]">
-                <button @click="currentTab = 'active'" class="tab-button flex-1 text-center" :class="{ 'active': currentTab === 'active' }">
-                    Активные
-                </button>
-                <button @click="currentTab = 'archived'" class="tab-button flex-1 text-center" :class="{ 'active': currentTab === 'archived' }">
-                    Архив
-                </button>
-            </div>
-            
-            <!-- Assignment Content -->
-            <div class="flex-1 overflow-y-auto custom-scroll p-4 content-padded" v-if="!isLoading">
-                <div v-if="currentTab === 'active'">
-                    <div v-if="filteredActiveAssignments.length === 0" class="text-center py-8 text[var(--tg-hint-color)]">
-                        <i class="fas fa-tasks text-4xl mb-2"></i>
-                        <p>Активных заданий по этому предмету пока нет</p>
-                        <button @click="showAddAssignmentModal" class="tg-button mt-4">
-                            <i class="fas fa-plus mr-2"></i> Добавить задание
-                        </button>
-                    </div>
-                    
-                    <div v-else class="grid grid-cols-1 gap-3">
-                        <div v-for="assignment in filteredActiveAssignments" :key="assignment.id"
-                             @click="viewAssignmentDetails(assignment)"
-                             class="assignment-card bg-[var(--tg-section-bg-color)] p-4 rounded-lg shadow-md cursor-pointer"
-                             :class="{'border-l-blue-500': assignment.status === 'new', 
-                                     'border-l-gray-500': assignment.status === 'viewed',
-                                     'border-l-green-500': assignment.status === 'completed',
-                                     'border-l-red-500': isOverdue(assignment),
-                                     'new-assignment': assignment.isNew,
-                                     'archiving-assignment': assignment.isArchiving}">
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="font-medium">{{ assignment.description.substring(0, 50) }}{{ assignment.description.length > 50 ? '...' : '' }}</h3>
-                                <div class="flex items-center">
-                                    <span v-if="isOverdue(assignment)" class="status-badge overdue-badge mr-2">
-                                        <i class="fas fa-clock mr-1"></i> Просрочено
-                                    </span>
-                                    <span class="status-badge" :class="{'new-badge': assignment.status === 'new',
-                                                                       'viewed-badge': assignment.status === 'viewed',
-                                                                       'completed-badge': assignment.status === 'completed'}">
-                                        <template v-if="assignment.status === 'new'">
-                                            <i class="fas fa-exclamation mr-1"></i> Новое
-                                        </template>
-                                        <template v-if="assignment.status === 'viewed'">
-                                            <i class="fas fa-eye mr-1"></i> Просмотрено
-                                        </template>
-                                        <template v-if="assignment.status === 'completed'">
-                                            <i class="fas fa-check mr-1"></i> Выполнено
-                                        </template>
-                                    </span>
-                                </div>
+                <!-- Experience -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-6 flex items-center">
+                        <i class="fas fa-briefcase text-blue-500 mr-3"></i>
+                        Опыт работы
+                    </h2>
+                    <div class="space-y-6">
+                        <div class="relative pl-10 timeline-item">
+                            <div class="absolute left-0 top-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                <i class="fas fa-building text-blue-500"></i>
                             </div>
-                            <div class="flex justify-between items-center">
-                                <div class="text-sm text-[var(--tg-hint-color)]">
-                                    {{ formatDate(assignment.assignedDate) }}
-                                    <template v-if="assignment.dueDate">
-                                        <br>До: {{ formatDate(assignment.dueDate) }}
-                                    </template>
-                                </div>
-                                <div v-if="assignment.files.length > 0" class="flex">
-                                    <i class="fas fa-paperclip text-[var(--tg-hint-color)]"></i>
-                                </div>
-                            </div>
-
-                            <!-- Image previews for assignments -->
-                            <div v-if="hasImageAttachments(assignment)" class="image-preview-container mt-2">
-                                <div v-for="(file, index) in getImageAttachments(assignment).slice(0, 4)" :key="index" 
-                                     class="image-preview" 
-                                     @click.stop="openImageGallery(getImageAttachments(assignment), index)">
-                                    <img :src="file.preview" :alt="file.name">
-                                    <div v-if="index === 3 && getImageAttachments(assignment).length > 4" class="image-count-badge">
-                                        +{{ getImageAttachments(assignment).length - 4 }}
-                                    </div>
-                                </div>
-                            </div>
+                            <h3 class="font-semibold text-lg">ГидроРемСервис</h3>
+                            <p class="text-gray-600 mb-2">Разнорабочий / Дизайнер</p>
+                            <p class="text-sm text-gray-500 mb-3">2.5 года</p>
+                            <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                <li>Разработка дизайна для карточек товаров, баннеров, визиток и флаеров</li>
+                                <li>Редактирование товаров, их количества и сортировки на сайтах компании</li>
+                                <li>Создание и поддержка сайтов на платформе Tilda</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
 
-                <!-- Archived Assignments -->
-                <div v-if="currentTab === 'archived'">
-                    <div v-if="filteredArchivedAssignments.length === 0" class="text-center py-8 text-[var(--tg-hint-color)]">
-                        <i class="fas fa-box-open text-4xl mb-2"></i>
-                        <p>Архив заданий по этому предмету пока пуст</p>
-                    </div>
-                    
-                    <div v-else class="grid grid-cols-1 gap-3">
-                        <div v-for="assignment in filteredArchivedAssignments" :key="assignment.id"
-                             class="assignment-card bg-[var(--tg-section-bg-color)] p-4 rounded-lg shadow-md border-l-purple-500">
-                            <div class="flex justify-between items-start mb-2">
+                <!-- Projects -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-6 flex items-center">
+                        <i class="fas fa-project-diagram text-blue-500 mr-3"></i>
+                        Проекты
+                    </h2>
+                    <div class="grid grid-cols-1 gap-4">
+                        <!-- Project 1 -->
+                        <a href="https://t.me/RaiveLich_bot" target="_blank" class="project-card bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md">
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                                    <i class="fab fa-telegram text-blue-500 text-xl"></i>
+                                </div>
                                 <div>
-                                    <h3 class="font-medium">{{ assignment.description.substring(0, 50) }}{{ assignment.description.length > 50 ? '...' : '' }}</h3>
-                                </div>
-                                <span class="status-badge archived-badge">
-                                    <i class="fas fa-archive mr-1"></i> Архивировано
-                                </span>
-                            </div>
-                            <div class="mb-2">
-                                <div class="text-xs text-[var(--tg-hint-color)] mb-1">
-                                    Добавлено: {{ formatDate(assignment.assignedDate) }}
-                                </div>
-                                <div class="text-xs text-[var(--tg-hint-color)]">
-                                    Архивировано: {{ formatDate(assignment.archivedDate) }}
+                                    <h3 class="font-semibold">@RaiveLich_bot (Кликабельно)</h3>
+                                    <p class="text-sm text-gray-600 mt-1">Telegram бот для колледжа с различными функциями для студентов</p>
                                 </div>
                             </div>
+                        </a>
 
-                            <!-- Image previews for archived assignments -->
-                            <div v-if="hasImageAttachments(assignment)" class="image-preview-container mt-2 mb-2">
-                                <div v-for="(file, index) in getImageAttachments(assignment).slice(0, 4)" :key="index" 
-                                     class="image-preview" 
-                                     @click.stop="openImageGallery(getImageAttachments(assignment), index)">
-                                    <img :src="file.preview" :alt="file.name">
-                                    <div v-if="index === 3 && getImageAttachments(assignment).length > 4" class="image-count-badge">
-                                        +{{ getImageAttachments(assignment).length - 4 }}
-                                    </div>
+                        <!-- Project 2 -->
+                        <a href="https://rus-cukurova.ru/" target="_blank" class="project-card bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md">
+                            <div class="flex items-start">
+                                <div class="bg-purple-100 p-3 rounded-lg mr-4">
+                                    <i class="fas fa-globe text-purple-500 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold">rus-cukurova.ru (Кликабельно)</h3>
+                                    <p class="text-sm text-gray-600 mt-1">Корпоративный сайт компании, разработанный на платформе Tilda</p>
                                 </div>
                             </div>
+                        </a>
 
-                            <div v-if="assignment.files.length > 0" class="flex flex-wrap gap-2">
-                                <div v-for="file in assignment.files.filter(f => !isImageFile(f.name))" 
-                                     :key="file.id" 
-                                     class="file-attachment bg-[var(--tg-secondary-bg-color)] px-3 py-2 text-sm rounded flex items-center">
-                                    <i class="fas fa-file-alt mr-2"></i>
-                                    <span>{{ file.name }}</span>
+                        <!-- Project 3 -->
+                        <div class="project-card bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md">
+                            <div class="flex items-start">
+                                <div class="bg-green-100 p-3 rounded-lg mr-4">
+                                    <i class="fas fa-shopping-cart text-green-500 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold">Маркетплейсы</h3>
+                                    <p class="text-sm text-gray-600 mt-1">Дизайн карточек товаров для различных маркетплейсов</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Кнопка добавления задания -->
-            <div v-if="currentTab === 'active' && showActionButtons" class="p-4 border-t border-[var(--tg-secondary-bg-color)]">
-                <button @click="showAddAssignmentModal" class="tg-button w-full py-3">
-                    <i class="fas fa-plus mr-2"></i> Добавить задание
-                </button>
-            </div>
-        </div>
-        
-        <!-- Assignment Details -->
-        <div class="min-h-screen flex flex-col" v-if="currentView === 'assignment-details'">
-            <!-- Header -->
-            <div class="bg-[var(--tg-section-bg-color)] p-4 flex items-center justify-between header-fixed">
-                <button @click="currentView = 'assignments'" class="flex items-center">
-                    <i class="fas fa-arrow-left mr-2"></i>
-                    <span>Назад</span>
-                </button>
-                <div class="flex-1 text-center font-semibold">Подробности задания</div>
-                <button v-if="currentAssignment.status !== 'archived'" @click="showArchiveConfirmation" class="text-[var(--tg-link-color)]">
-                    <i class="fas fa-archive"></i>
-                </button>
-                <div v-else style="width: 24px;"></div>
-            </div>
-            
-            <!-- Content -->
-            <div class="flex-1 overflow-y-auto custom-scroll p-4 content-padded">
-                <div class="bg-[var(--tg-section-bg-color)] rounded-lg p-4 mb-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <h2 class="text-xl font-bold">{{ currentAssignment.subject }}</h2>
-                        <span class="status-badge" :class="{'new-badge': currentAssignment.status === 'new',
-                                                          'viewed-badge': currentAssignment.status === 'viewed',
-                                                          'completed-badge': currentAssignment.status === 'completed',
-                                                          'archived-badge': currentAssignment.status === 'archived',
-                                                          'overdue-badge': isOverdue(currentAssignment) && currentAssignment.status !== 'completed'}">
-                            <template v-if="isOverdue(currentAssignment) && currentAssignment.status !== 'completed'">
-                                <i class="fas fa-exclamation-circle mr-1"></i> Просрочено
-                            </template>
-                            <template v-else-if="currentAssignment.status === 'new'">
-                                <i class="fas fa-exclamation mr-1"></i> Новое
-                            </template>
-                            <template v-else-if="currentAssignment.status === 'viewed'">
-                                <i class="fas fa-eye mr-1"></i> Просмотрено
-                            </template>
-                            <template v-else-if="currentAssignment.status === 'completed'">
-                                <i class="fas fa-check mr-1"></i> Выполнено
-                            </template>
-                            <template v-else>
-                                <i class="fas fa-archive mr-1"></i> Архивировано
-                            </template>
-                        </span>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <div class="flex justify-between text-sm text-[var(--tg-hint-color)] mb-3">
-                            <span>Группа</span>
-                            <span>{{ currentAssignment.group }}</span>
+
+                <!-- Portfolio Gallery -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-6 flex items-center">
+                        <i class="fas fa-images text-blue-500 mr-3"></i>
+                        Дизайн-портфолио
+                    </h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        <!-- Gallery Item 1 -->
+                        <div class="gallery-item aspect-square cursor-pointer" onclick="openModal();currentSlide(1)">
+                            <img src="img/WWB.jpg" alt="Карточка товара для маркетплейсов" class="w-full h-full">
                         </div>
                         
-                        <div class="flex justify-between text-sm text-[var(--tg-hint-color)] mb-3" v-if="currentAssignment.dueDate">
-                            <span>Срок сдачи</span>
-                            <span :class="{'text-red-400': isOverdue(currentAssignment) && currentAssignment.status !== 'completed'}">
-                                {{ formatDate(currentAssignment.dueDate) }}
-                                <span v-if="isOverdue(currentAssignment) && currentAssignment.status !== 'completed'"> (просрочено)</span>
-                            </span>
+                        <!-- Gallery Item 2 -->
+                        <div class="gallery-item aspect-square cursor-pointer" onclick="openModal();currentSlide(2)">
+                            <img src="img/iq1c70iimvpq0kwcnz94d25lpw95hhxy.jpeg" alt="Пример баннера для компании" class="w-full h-full">
                         </div>
                         
-                        <div class="border-t border-[var(--tg-secondary-bg-color)] pt-3">
-                            <h3 class="font-semibold mb-2">Описание</h3>
-                            <p class="whitespace-pre-wrap">{{ currentAssignment.description }}</p>
+                        <!-- Gallery Item 3 -->
+                        <div class="gallery-item aspect-square cursor-pointer" onclick="openModal();currentSlide(3)">
+                            <img src="img/Павел Александрович Смеркалов.png" alt="Визитка для сотрудника" class="w-full h-full">
                         </div>
-                    </div>
-                    
-                    <!-- Image previews in details view -->
-                    <div v-if="hasImageAttachments(currentAssignment)" class="mb-4">
-                        <h3 class="font-semibold mb-2">Фотографии задания</h3>
-                        <div class="image-preview-container">
-                            <div v-for="(file, index) in getImageAttachments(currentAssignment)" 
-                                 :key="file.id" 
-                                 class="image-preview" 
-                                 @click="openImageGallery(getImageAttachments(currentAssignment), index)">
-                                <img :src="file.preview" :alt="file.name">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div v-if="hasNonImageAttachments(currentAssignment)" class="mb-4">
-                        <h3 class="font-semibold mb-2">Прикрепленные файлы</h3>
-                        <div class="grid grid-cols-1 gap-2">
-                            <div v-for="file in currentAssignment.files.filter(f => !isImageFile(f.name))" 
-                                 :key="file.id" 
-                                 class="file-attachment bg-[var(--tg-secondary-bg-color)] p-3 rounded-lg flex items-center">
-                                <div class="bg-[var(--tg-section-bg-color)] p-2 rounded mr-3">
-                                    <i class="fas fa-file-alt"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="font-medium">{{ file.name }}</p>
-                                    <p class="text-xs text-[var(--tg-hint-color)]">{{ formatFileSize(file.size) }}</p>
-                                </div>
-                                <button @click="openFile(file)" class="text-[var(--tg-link-color)]">
-                                    <i class="fas fa-external-link-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div v-if="currentAssignment.studentFiles.length > 0" class="mb-4">
-                        <h3 class="font-semibold mb-2">Ваше решение</h3>
-                        <div class="grid grid-cols-1 gap-2">
-                            <div v-for="file in currentAssignment.studentFiles" 
-                                 :key="file.id" 
-                                 class="file-attachment bg-[var(--tg-secondary-bg-color)] p-3 rounded-lg flex items-center">
-                                <div class="bg-[var(--tg-section-bg-color)] p-2 rounded mr-3">
-                                    <i class="fas fa-file-upload"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="font-medium">{{ file.name }}</p>
-                                    <p class="text-xs text-[var(--tg-hint-color)]">Загружено {{ formatDate(file.uploadDate) }}</p>
-                                </div>
-                                <button @click="openFile(file)" class="text-[var(--tg-link-color)]">
-                                    <i class="fas fa-external-link-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="flex flex-col gap-3">
-                    <template v-if="currentAssignment.status !== 'archived' && showActionButtons">
-                        <button v-if="currentAssignment.status !== 'completed'" 
-                                @click="markAsCompleted" 
-                                class="tg-button py-3 flex items-center justify-center">
-                            <i class="fas fa-check mr-2"></i> Отметить выполненным
-                        </button>
                         
-                        <button @click="showUploadModal" class="bg-[var(--tg-secondary-bg-color)] py-3 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-file-upload mr-2"></i> Загрузить решение
-                        </button>
-                    </template>
-                    
-                    <button v-if="currentAssignment.status === 'archived'" 
-                            @click="unarchiveAssignment" 
-                            class="tg-button py-3 flex items-center justify-center">
-                        <i class="fas fa-box-open mr-2"></i> Восстановить из архива
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Modal Windows -->
-        <!-- Group Selection -->
-        <div v-if="activeModal === 'group-select'" class="backdrop" @click.self="closeModal">
-            <div class="modal-content">
-                <div class="p-4 border-b border-[var(--tg-secondary-bg-color)] flex justify-between items-center">
-                    <h3 class="text-lg font-semibold">Выберите вашу группу</h3>
-                    <button @click="closeModal" class="text-[var(--tg-hint-color)]">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div class="p-4 max-h-[70vh] overflow-y-auto">
-                    <div class="grid grid-cols-1 gap-2">
-                        <button v-for="group in botGroups" :key="group" 
-                                @click="selectGroup(group)"
-                                class="text-left p-3 rounded-lg transition"
-                                :class="{'bg-[var(--tg-button-color)]': group === selectedGroup,
-                                         'hover:bg-[var(--tg-secondary-bg-color)]': group !== selectedGroup}">
-                            {{ group }}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Add Assignment -->
-        <div v-if="activeModal === 'add-assignment'" class="backdrop" @click.self="closeModal">
-            <div class="modal-content">
-                <div class="p-4 border-b border-[var(--tg-secondary-bg-color)] flex justify-between items-center">
-                    <h3 class="text-lg font-semibold">Добавить задание</h3>
-                    <button @click="closeModal" class="text-[var(--tg-hint-color)]">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div class="p-4 max-h-[70vh] overflow-y-auto">
-                    <div class="mb-4">
-                        <label class="block text-sm text-[var(--tg-hint-color)] mb-1">Предмет: {{ currentSubject.name }}</label>
-                        <label class="block text-sm text-[var(--tg-hint-color)] mb-1">Группа: {{ selectedGroup }}</label>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="block text-sm text-[var(--tg-hint-color)] mb-1">Описание задания</label>
-                        <textarea v-model="newAssignment.description" rows="5" class="w-full bg-[var(--tg-secondary-bg-color)] rounded-lg p-3 border-none focus:ring-2 focus:ring-[var(--tg-button-color)]" placeholder="Введите описание задания..."></textarea>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="block text-sm text-[var(--tg-hint-color)] mb-1">Прикрепленные файлы (необязательно)</label>
-                        <div class="border border-dashed border-[var(--tg-secondary-bg-color)] rounded-lg p-4 text-center cursor-pointer hover:bg-[var(--tg-secondary-bg-color)] transition"
-                             @click="triggerAssignmentFileInput">
-                            <i class="fas fa-cloud-upload-alt text-3xl text-[var(--tg-button-color)] mb-2"></i>
-                            <p>Нажмите для загрузки файлов</p>
-                            <input type="file" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" ref="assignmentFileInput" @change="handleAssignmentFileUpload" class="hidden">
+                        <!-- Gallery Item 4 -->
+                        <div class="gallery-item aspect-square cursor-pointer" onclick="openModal();currentSlide(4)">
+                            <img src="img/Вариант1.png" alt="Флаер для акции" class="w-full h-full">
+                        </div>
+                        
+                        <!-- Gallery Item 5 -->
+                        <div class="gallery-item aspect-square cursor-pointer" onclick="openModal();currentSlide(5)">
+                            <img src="img/шхп10х250.jpg" alt="Карточка товара для маркетплейсов" class="w-full h-full">
+                        </div>
+                        
+                        <!-- Gallery Item 6 -->
+                        <div class="gallery-item aspect-square cursor-pointer" onclick="openModal();currentSlide(6)">
+                            <img src="img/1 слайд Yellow.png" alt="Карточка товара для маркетплейсов" class="w-full h-full">
                         </div>
                     </div>
-                    
-                    <div v-if="newAssignment.files.length > 0" class="mb-4">
-                        <h4 class="text-sm font-medium mb-2">Выбранные файлы:</h4>
-                        <div class="grid grid-cols-1 gap-2">
-                            <div v-for="(file, index) in newAssignment.files" :key="index" class="flex items-center justify-between bg-[var(--tg-secondary-bg-color)] p-2 rounded">
-                                <div class="flex items-center">
-                                    <i :class="isImageFile(file.name) ? 'fas fa-image' : 'fas fa-file-alt'" class="mr-2 text-[var(--tg-hint-color)]"></i>
-                                    <span>{{ file.name }}</span>
-                                </div>
-                                <button @click="removeAssignmentFile(index)" class="text-red-400">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="block text-sm text-[var(--tg-hint-color)] mb-1">Срок сдачи (необязательно)</label>
-                        <input v-model="newAssignment.dueDate" type="date" class="w-full bg-[var(--tg-secondary-bg-color)] rounded-lg p-3 border-none">
-                    </div>
-                    
-                    <button @click="createAssignment(); forceCloseModal()" class="tg-button w-full py-3" :disabled="!newAssignment.description">
-                        <i class="fas fa-plus mr-2"></i> Создать задание
-                    </button>
                 </div>
-            </div>
-        </div>
-        
-        <!-- File Upload -->
-        <div v-if="activeModal === 'file-upload'" class="backdrop" @click.self="closeModal">
-            <div class="modal-content">
-                <div class="p-4 border-b border-[var(--tg-secondary-bg-color)] flex justify-between items-center">
-                    <h3 class="text-lg font-semibold">Загрузка решения</h3>
-                    <button @click="closeModal" class="text-[var(--tg-hint-color)]">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div class="p-4 max-h-[70vh] overflow-y-auto">
-                    <div class="mb-4">
-                        <label class="block text-sm text-[var(--tg-hint-color)] mb-1">Файлы</label>
-                        <div class="border border-dashed border-[var(--tg-secondary-bg-color)] rounded-lg p-4 text-center cursor-pointer hover:bg-[var(--tg-secondary-bg-color)] transition"
-                             @click="triggerFileInput">
-                            <i class="fas fa-cloud-upload-alt text-3xl text-[var(--tg-button-color)] mb-2"></i>
-                            <p>Нажмите для выбора файлов</p>
-                            <input type="file" multiple ref="fileInput" @change="handleFileUpload" class="hidden">
-                        </div>
-                    </div>
-                    
-                    <div v-if="uploadedFiles.length > 0" class="mb-4">
-                        <h4 class="text-sm font-medium mb-2">Выбранные файлы:</h4>
-                        <div class="grid grid-cols-1 gap-2">
-                            <div v-for="(file, index) in uploadedFiles" :key="index" class="flex items-center justify-between bg-[var(--tg-secondary-bg-color)] p-2 rounded">
-                                <div class="flex items-center">
-                                    <i :class="isImageFile(file.name) ? 'fas fa-image' : 'fas fa-file-alt'" class="mr-2 text-[var(--tg-hint-color)]"></i>
-                                    <span>{{ file.name }}</span>
-                                </div>
-                                <button @click="removeFile(index)" class="text-red-400">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-3">
-                        <button @click="closeModal" class="flex-1 bg-[var(--tg-secondary-bg-color)] py-3 rounded-lg">
-                            Отмена
-                        </button>
-                        <button @click="submitSolution" :disabled="uploadedFiles.length === 0" class="flex-1 tg-button py-3" :class="{'opacity-50 cursor-not-allowed': uploadedFiles.length === 0}">
-                            <i class="fas fa-upload mr-2"></i> Загрузить
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Confirmation -->
-        <div v-if="activeModal === 'confirmation'" class="backdrop" @click.self="closeModal">
-            <div class="modal-content">
-                <div class="p-6 text-center">
-                    <i class="fas fa-question-circle text-4xl text-[var(--tg-button-color)] mb-4"></i>
-                    <h3 class="text-lg font-semibold mb-2">{{ confirmationMessage }}</h3>
-                    <p class="text-sm text-[var(--tg-hint-color)] mb-6">{{ confirmationDetails }}</p>
-                    
-                    <div class="flex gap-3">
-                        <button @click="executeConfirmationAction" class="tg-button flex-1 py-3">
-                            Да
-                        </button>
-                        <button @click="closeModal" class="bg-[var(--tg-secondary-bg-color)] flex-1 py-3 rounded-lg">
-                            Отмена
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Notification -->
-        <transition name="fade">
-            <div v-if="showNotification" class="notification">
-                <div class="flex items-center">
-                    <i :class="notificationIcon" class="mr-2"></i>
-                    <span>{{ notificationMessage }}</span>
-                </div>
-                <button @click="showNotification = false" class="text-[var(--tg-hint-color)]">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </transition>
 
-        <!-- Admin Key Modal -->
-        <div v-if="activeModal === 'admin-key'" class="backdrop" @click.self="closeModal">
-            <div class="modal-content">
-                <div class="p-4 border-b border-[var(--tg-secondary-bg-color)] flex justify-between items-center">
-                    <h3 class="text-lg font-semibold">Ключ администратора</h3>
-                    <button @click="closeModal" class="text-[var(--tg-hint-color)]">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <div class="p-4">
-                    <div v-if="isAdmin" class="mb-4 text-center">
-                        <i class="fas fa-check-circle text-green-500 text-4xl mb-2"></i>
-                        <p>У вас есть права администратора</p>
-                    </div>
-                    <div v-else>
-                        <div class="mb-4">
-                            <label class="block text-sm text-[var(--tg-hint-color)] mb-1">Введите ключ администратора</label>
-                            <input v-model="adminKeyInput" type="password" class="w-full bg-[var(--tg-secondary-bg-color)] rounded-lg p-3 border-none" placeholder="Введите ключ...">
-                        </div>
-                        <button @click="submitAdminKey" class="tg-button w-full py-3">
-                            Подтвердить
-                        </button>
-                    </div>
-                    <div v-if="isAdmin" class="mt-4">
-                        <button @click="removeAdminRights" class="bg-red-500 text-white w-full py-3 rounded-lg">
-                            Удалить права администратора
-                        </button>
+                <!-- Websites -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <i class="fas fa-link text-blue-500 mr-3"></i>
+                        Сайты, которые я поддерживаю
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <a href="https://toroils.ru/" target="_blank" class="text-blue-500 hover:underline flex items-center">
+                            <i class="fas fa-external-link-alt mr-2 text-sm"></i> toroils.ru
+                        </a>
+                        <a href="https://grs-ufa.ru/" target="_blank" class="text-blue-500 hover:underline flex items-center">
+                            <i class="fas fa-external-link-alt mr-2 text-sm"></i> grs-ufa.ru
+                        </a>
+                        <a href="https://grs-zavod.ru/" target="_blank" class="text-blue-500 hover:underline flex items-center">
+                            <i class="fas fa-external-link-alt mr-2 text-sm"></i> grs-zavod.ru
+                        </a>
+                        <a href="https://shtoki-grs.ru/" target="_blank" class="text-blue-500 hover:underline flex items-center">
+                            <i class="fas fa-external-link-alt mr-2 text-sm"></i> shtoki-grs.ru
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Gallery Modal -->
+        <div id="myModal" class="modal">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div class="modal-content">
+                <img id="modalImage" src="" alt="" class="mx-auto">
+                <div class="caption" id="caption"></div>
+            </div>
+            <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+            <a class="next" onclick="plusSlides(1)">&#10095;</a>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-gray-500 text-sm">
+            <p></p>
+            <p class=""></span></p>
+        </footer>
     </div>
 
     <script>
-        // Создаем глобальный объект context
-        const context = {
-            user_data: null
-        };
+        // Set current date
+        const now = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = now.toLocaleDateString('ru-RU', options);
         
-        const { createApp, ref, computed, onMounted, nextTick } = Vue;
+        // Animation on scroll
+        document.addEventListener('DOMContentLoaded', () => {
+            const elements = document.querySelectorAll('.project-card, .skill-badge, .gallery-item');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            elements.forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(el);
+            });
+        });
+
+        // Gallery Modal functionality
+        let slideIndex = 1;
         
-        createApp({
-            setup() {
-                // View states
-                const currentView = ref('main');
-                const currentTab = ref('active');
-                const isLoading = ref(true);
-                const activeModal = ref(null);
-                const showNotification = ref(false);
-                const confirmationMessage = ref('');
-                const confirmationDetails = ref('');
-                const pendingConfirmationAction = ref(() => {});
-                const notificationMessage = ref('');
-                const notificationIcon = ref('');
-                const colorScheme = ref('dark');
-                
-                // Image viewer
-                const imageViewer = ref({
-                    open: false,
-                    images: [],
-                    currentIndex: 0
-                });
-                
-                // Telegram WebApp integration
-                const WebApp = window.Telegram.WebApp;
-                const initData = WebApp.initData || '';
-                const initDataUnsafe = WebApp.initDataUnsafe || {};
-                
-                // Data
-                const selectedGroup = ref('');
-                const botGroups = ['9ИСП-12К-24', '9КСК-10-24', '9ИСП-111К-24', '9ИКСС-13-24'];
-                const ADMIN_KEY = '135grs'; // Здесь укажите ваш ключ администратора
-                const isAdmin = ref(localStorage.getItem('isAdmin') === 'true');
-                const adminKeyInput = ref('');
-                
-                const botSubjects = [
-                    { id: 1, name: 'Башкирский язык', emoji: '📚' },
-                    { id: 2, name: 'Биология', emoji: '🧬' },
-                    { id: 3, name: 'География', emoji: '🌍' },
-                    { id: 4, name: 'Иностранный язык', emoji: '🌐' },
-                    { id: 5, name: 'Информатика', emoji: '💻' },
-                    { id: 6, name: 'История', emoji: '📜' },
-                    { id: 7, name: 'Литература', emoji: '📖' },
-                    { id: 8, name: 'Математика', emoji: '🔢' },
-                    { id: 9, name: 'Обществознание: право', emoji: '⚖️' },
-                    { id: 10, name: 'Обществознание: экономика', emoji: '📊' },
-                    { id: 11, name: 'Основы безопасности и защиты Родины', emoji: '🛡️' },
-                    { id: 12, name: 'Русский язык', emoji: '✍️' },
-                    { id: 13, name: 'Физика', emoji: '⚡' },
-                    { id: 14, name: 'Физическая культура', emoji: '🏃' },
-                    { id: 15, name: 'Химия', emoji: '🧪' }
-                ];
-                
-                const subjects = ref([...botSubjects]);
-                
-                const newSubject = ref({
-                    name: '',
-                    emoji: '',
-                    group: ''
-                });
-                
-                const currentSubject = ref({});
-                const currentAssignment = ref({});
-                
-                const assignments = ref([
-                    {
-                        id: 1,
-                        subject: 'Математика', 
-                        subjectId: 8,
-                        group: '9ИСП-12К-24',
-                        description: 'Решить задачи №45-50 из учебника, страница 123. Особое внимание уделить задаче №48, так как она будет на контрольной.',
-                        status: 'new',
-                        assignedDate: new Date(),
-                        dueDate: new Date(Date.now() + 86400000 * 3), // 3 days from now
-                        files: [
-                            { id: 1, name: '/Math/m1.png', size: 1245000, preview: 'https://picsum.photos/200/300?random=1' },
-                            { id: 2, name: '/Math/f.jpeg', size: 654321, preview: 'https://picsum.photos/200/300?random=2' },
-                            { id: 3, name: '/Math/m3.pdf', size: 2345678 },
-                            { id: 4, name: '/Math/m4.png', size: 456789, preview: 'https://picsum.photos/200/300?random=3' }
-                        ],
-                        studentFiles: []
-                    },
-                    {
-                        id: 2, 
-                        subject: 'Русский язык',
-                        subjectId: 12,
-                        group: '9ИСП-12К-24',
-                        description: 'Написать сочинение на тему "Мое отношение к искусству". Объем - 3 страницы, сдать до следующей среды.',
-                        status: 'viewed',
-                        assignedDate: new Date(Date.now() - 86400000 * 2),
-                        dueDate: new Date(Date.now() + 86400000 * 5),
-                        files: [
-                            { id: 5, name: 'rus.jpg', size: 765432, preview: 'https://picsum.photos/200/300?random=4' }
-                        ],
-                        studentFiles: []
-                    },
-                    {
-                        id: 3,
-                        subject: 'Физика',
-                        subjectId: 13,
-                        group: '9ИСП-12К-24',
-                        description: 'Подготовить презентацию о законах термодинамики. Минимум 10 слайдов с иллюстрациями.',
-                        status: 'completed',
-                        assignedDate: new Date(Date.now() - 86400000 * 4),
-                        dueDate: new Date(Date.now() - 86400000),
-                        files: [
-                            { id: 6, name: 'fr.pdf', size: 2345678 }
-                        ],
-                        studentFiles: [
-                            { id: 1, name: 'Phiz.ppt', size: 3456789, uploadDate: new Date(Date.now() - 86400000 * 2) }
-                        ]
-                    },
-                    {
-                        id: 4,
-                        subject: 'История',
-                        subjectId: 6,
-                        group: '9ИСП-12К-24',
-                        description: 'Прочитать главу 5 учебника и подготовить краткий конспект',
-                        status: 'new',
-                        assignedDate: new Date(),
-                        dueDate: null,
-                        files: [
-                            { id: 7, name: 'historical-image.jpg', size: 1234567, preview: 'https://picsum.photos/200/300?random=5' },
-                            { id: 8, name: '1345623186_9-maya-den-pobedy.ppt', size: 2345678 }
-                        ],
-                        studentFiles: []
-                    }
-                ]);
-                
-                const newAssignment = ref({
-                    subject: '',
-                    subjectId: null,
-                    group: '',
-                    description: '',
-                    files: [],
-                    dueDate: null
-                });
-                
-                const uploadedFiles = ref([]);
-                
-                // Computed properties
-                const filteredSubjects = computed(() => {
-                    return subjects.value.filter(subj => 
-                        subj.group === undefined || 
-                        subj.group === '' || 
-                        subj.group === selectedGroup.value
-                    );
-                });
-                
-                const filteredActiveAssignments = computed(() => {
-                    return assignments.value.filter(a => 
-                        a.subjectId === currentSubject.value.id && 
-                        a.group === selectedGroup.value && 
-                        a.status !== 'archived'
-                    ).sort((a, b) => new Date(b.assignedDate) - new Date(a.assignedDate));
-                });
-                
-                const filteredArchivedAssignments = computed(() => {
-                    return assignments.value.filter(a => 
-                        a.subjectId === currentSubject.value.id && 
-                        a.group === selectedGroup.value && 
-                        a.status === 'archived'
-                    ).sort((a, b) => new Date(b.archivedDate) - new Date(a.archivedDate));
-                });
-                
-                // Methods
-                const isImageFile = (filename) => {
-                    if (!filename) return false;
-                    const imgExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
-                    const ext = filename.split('.').pop().toLowerCase();
-                    return imgExtensions.includes(ext);
-                };
-                
-                const hasImageAttachments = (assignment) => {
-                    return assignment.files.some(file => isImageFile(file.name));
-                };
-                
-                const hasNonImageAttachments = (assignment) => {
-                    return assignment.files.some(file => !isImageFile(file.name));
-                };
-                
-                const getImageAttachments = (assignment) => {
-                    return assignment.files.filter(file => isImageFile(file.name));
-                };
-                
-                const openImageGallery = (images, startIndex = 0) => {
-                    imageViewer.value = {
-                        open: true,
-                        images: images.map(img => img.preview),
-                        currentIndex: startIndex
-                    };
-                };
-                
-                const closeImageViewer = () => {
-                    imageViewer.value.open = false;
-                };
-                
-                const nextImage = () => {
-                    if (imageViewer.value.currentIndex < imageViewer.value.images.length - 1) {
-                        imageViewer.value.currentIndex++;
-                    }
-                };
-                
-                const prevImage = () => {
-                    if (imageViewer.value.currentIndex > 0) {
-                        imageViewer.value.currentIndex--;
-                    }
-                };
-                
-                const isOverdue = (assignment) => {
-                    if (!assignment.dueDate) return false;
-                    return new Date(assignment.dueDate) < new Date() && assignment.status !== 'completed';
-                };
-                
-                const formatDate = (date) => {
-                    if (!date) return 'Без срока';
-                    const d = new Date(date);
-                    const options = { day: 'numeric', month: 'long', year: 'numeric' };
-                    return d.toLocaleDateString('ru-RU', options);
-                };
-                
-                const formatDateTime = (date) => {
-                    if (!date) return '';
-                    const d = new Date(date);
-                    return d.toLocaleString('ru-RU');
-                };
-                
-                const formatFileSize = (bytes) => {
-                    if (bytes === 0) return '0 байт';
-                    const sizes = ['байт', 'КБ', 'МБ', 'ГБ'];
-                    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-                    return parseFloat((bytes / Math.pow(1024, i)).toFixed(2)) + ' ' + sizes[i];
-                };
-                
-                const getPendingCount = (group, subjectId) => {
-                    return assignments.value.filter(a => 
-                        a.group === group && 
-                        a.subjectId === subjectId && 
-                        (a.status === 'new' || a.status === 'viewed')
-                    ).length;
-                };
-                
-                const getArchivedCount = (group, subjectName) => {
-                    return assignments.value.filter(a => 
-                        a.group === group && 
-                        a.subject === subjectName && 
-                        a.status === 'archived'
-                    ).length;
-                };
-                
-                // Telegram WebApp methods
-                const initTelegramWebApp = () => {
-                    try {
-                        // Получаем параметры из URL
-                        const urlParams = new URLSearchParams(window.location.search);
-                        const isAllowed = urlParams.get('allowed') === 'true';
-                        const username = urlParams.get('username');
-                        
-                        // Инициализируем данные пользователя
-                        context.user_data = {
-                            isAllowed: isAllowed,
-                            username: username
-                        };
-                        
-                        if (WebApp) {
-                            // Expand app to full viewport
-                            WebApp.expand();
-                            
-                            // Set theme colors
-                            colorScheme.value = WebApp.colorScheme || 'dark';
-                            WebApp.setBackgroundColor('#17212b');
-                            WebApp.setHeaderColor('#2b3647');
-                        }
-                        
-                        // Проверяем группу
-                        const savedGroup = localStorage.getItem('selectedGroup');
-                        if (savedGroup && botGroups.includes(savedGroup)) {
-                            selectedGroup.value = savedGroup;
-                        } else if (urlParams.has('group')) {
-                            const groupParam = urlParams.get('group');
-                            if (botGroups.includes(groupParam)) {
-                                selectedGroup.value = groupParam;
-                                localStorage.setItem('selectedGroup', groupParam);
-                            } else {
-                                selectedGroup.value = botGroups[0];
-                                localStorage.setItem('selectedGroup', botGroups[0]);
-                            }
-                        } else {
-                            selectedGroup.value = botGroups[0];
-                            localStorage.setItem('selectedGroup', botGroups[0]);
-                        }
-                        
-                        // Убираем загрузку после успешной инициализации
-                        isLoading.value = false;
-                    } catch (error) {
-                        console.error('Error initializing WebApp:', error);
-                        // В случае ошибки все равно убираем загрузку
-                        isLoading.value = false;
-                    }
-                };
-                
-                const openFile = (file) => {
-                    if (WebApp) {
-                        // In Telegram WebApp, we can't open files directly
-                        // So we'll just show a notification
-                        showNotice('Открытие файлов доступно в основном клиенте Telegram', 'fas fa-info-circle');
-                    } else {
-                        // Fallback for local development
-                        window.open(`#${file.id}`, '_blank');
-                    }
-                };
-                
-                const sendDataToBot = (action, data) => {
-                    if (WebApp) {
-                        WebApp.sendData(JSON.stringify({ action, data }));
-                    } else {
-                        console.log('Data sent to bot:', { action, data });
-                        // Simulate response in development
-                        setTimeout(() => {
-                            showNotice('Данные отправлены в Telegram бот', 'fas fa-paper-plane');
-                        }, 500);
-                    }
-                };
-                
-                // Modal methods
-                const toggleGroupSelect = () => {
-                    activeModal.value = activeModal.value === 'group-select' ? null : 'group-select';
-                };
-                
-                const showAddAssignmentModal = () => {
-                    if (!checkPermissions()) return;
-                    newAssignment.value.subject = currentSubject.value.name;
-                    newAssignment.value.subjectId = currentSubject.value.id;
-                    newAssignment.value.group = selectedGroup.value;
-                    activeModal.value = 'add-assignment';
-                };
-                
-                const showUploadModal = () => {
-                    if (!checkPermissions()) return;
-                    uploadedFiles.value = [];
-                    activeModal.value = 'file-upload';
-                };
-                
-                const showAddSubjectModal = () => {
-                    newSubject.value.group = selectedGroup.value;
-                    activeModal.value = 'add-subject';
-                };
-                
-                const showConfirmationModal = (message, details, action) => {
-                    confirmationMessage.value = message;
-                    confirmationDetails.value = details;
-                    pendingConfirmationAction.value = action;
-                    activeModal.value = 'confirmation';
-                };
-                
-                const showArchiveConfirmation = () => {
-                    showConfirmationModal(
-                        'Архивировать задание?',
-                        'Задание будет перемещено в архив и скрыто из основного списка.',
-                        () => {
-                            currentAssignment.value.status = 'archived';
-                            currentAssignment.value.archivedDate = new Date();
-                            sendDataToBot('archive_assignment', { id: currentAssignment.value.id });
-                            currentView.value = 'assignments';
-                            showNotice('Задание перемещено в архив', 'fas fa-archive');
-                        }
-                    );
-                };
-                
-                const executeConfirmationAction = () => {
-                    pendingConfirmationAction.value();
-                    closeModal();
-                };
-                
-                const closeModal = () => {
-                    activeModal.value = null;
-                };
-                
-                // Other methods
-                const selectGroup = (group) => {
-                    selectedGroup.value = group;
-                    localStorage.setItem('selectedGroup', group); // Сохраняем выбранную группу
-                    sendDataToBot('select_group', { group });
-                    closeModal();
-                    showNotice('Группа изменена на ' + group, 'fas fa-check-circle');
-                };
-                
-                const viewAssignments = (subject) => {
-                    currentSubject.value = subject;
-                    currentView.value = 'assignments';
-                    currentTab.value = 'active';
-                };
-                
-                const viewAssignmentDetails = (assignment) => {
-                    // Mark as viewed if status is "new"
-                    if (assignment.status === 'new') {
-                        assignment.status = 'viewed';
-                        sendDataToBot('view_assignment', { id: assignment.id });
-                    }
-                    
-                    currentAssignment.value = assignment;
-                    currentView.value = 'assignment-details';
-                };
-                
-                const markAsCompleted = () => {
-                    currentAssignment.value.status = 'completed';
-                    sendDataToBot('complete_assignment', { id: currentAssignment.value.id });
-                    showNotice('Задание отмечено как выполненное', 'fas fa-check-circle');
-                };
-                
-                const uncompleteAssignment = () => {
-                    currentAssignment.value.status = 'viewed';
-                    sendDataToBot('uncomplete_assignment', { id: currentAssignment.value.id });
-                    showNotice('Задание возвращено в работу', 'fas fa-undo');
-                };
-                
-                const archiveAssignment = () => {
-                    if (!checkPermissions()) return;
-                    
-                    currentAssignment.value.status = 'archived';
-                    currentAssignment.value.archivedDate = new Date();
-                    sendDataToBot('archive_assignment', { id: currentAssignment.value.id });
-                    currentView.value = 'assignments';
-                    showNotice('Задание перемещено в архив', 'fas fa-archive');
-                };
-                
-                const unarchiveAssignment = () => {
-                    currentAssignment.value.status = 'viewed';
-                    sendDataToBot('unarchive_assignment', { id: currentAssignment.value.id });
-                    currentView.value = 'assignments';
-                    showNotice('Задание восстановлено из архива', 'fas fa-box-open');
-                };
-                
-                const triggerFileInput = () => {
-                    const fileInput = document.querySelector('input[type="file"]');
-                    if (fileInput) fileInput.click();
-                };
-                
-                const handleFileUpload = (event) => {
-                    const files = Array.from(event.target.files || []);
-                    files.forEach(file => {
-                        const reader = new FileReader();
-                        if (isImageFile(file.name)) {
-                            reader.onload = (e) => {
-                                uploadedFiles.value.push({
-                                    id: Date.now() + Math.random().toString(36).substring(2),
-                                    name: file.name,
-                                    size: file.size,
-                                    preview: e.target.result
-                                });
-                            };
-                            reader.readAsDataURL(file);
-                        } else {
-                            uploadedFiles.value.push({
-                                id: Date.now() + Math.random().toString(36).substring(2),
-                                name: file.name,
-                                size: file.size
-                            });
-                        }
-                    });
-                };
-                
-                const removeFile = (index) => {
-                    uploadedFiles.value.splice(index, 1);
-                };
-                
-                const submitSolution = () => {
-                    if (!checkPermissions()) return;
-                    
-                    // Add uploaded files to the assignment
-                    uploadedFiles.value.forEach(file => {
-                        currentAssignment.value.studentFiles.push({
-                            ...file,
-                            uploadDate: new Date()
-                        });
-                    });
-                    
-                    sendDataToBot('upload_solution', {
-                        assignmentId: currentAssignment.value.id,
-                        files: uploadedFiles.value
-                    });
-                    
-                    uploadedFiles.value = [];
-                    closeModal();
-                    showNotice('Решение успешно загружено', 'fas fa-check-circle');
-                };
-                
-                const createAssignment = async () => {
-                    if (!checkPermissions()) return;
-                    
-                    const currentFiles = [...newAssignment.value.files];
-                    
-                    const newAssignmentObj = {
-                        id: Date.now(),
-                        subject: currentSubject.value.name,
-                        subjectId: currentSubject.value.id,
-                        group: selectedGroup.value,
-                        description: newAssignment.value.description,
-                        status: 'new',
-                        assignedDate: new Date(),
-                        dueDate: newAssignment.value.dueDate ? new Date(newAssignment.value.dueDate) : null,
-                        files: currentFiles,
-                        studentFiles: []
-                    };
-                    
-                    assignments.value.unshift(newAssignmentObj);
-                    sendDataToBot('create_assignment', newAssignmentObj);
-                    
-                    // Сбрасываем все значения формы
-                    Object.assign(newAssignment.value, {
-                        subject: '',
-                        subjectId: null,
-                        group: '',
-                        description: '',
-                        files: [],
-                        dueDate: null
-                    });
-                    
-                    // Форсируем обновление DOM перед закрытием
-                    await nextTick();
-                    
-                    // Закрываем модальное окно напрямую
-                    const modalElement = document.querySelector('.modal-content');
-                    if (modalElement) {
-                        modalElement.style.display = 'none';
-                    }
-                    
-                    activeModal.value = null;
-                    
-                    // Показываем уведомление
-                    showNotice('Новое задание добавлено', 'fas fa-check-circle');
-                };
-                
-                const triggerAssignmentFileInput = () => {
-                    const fileInput = document.querySelector('input[type="file"]');
-                    if (fileInput) fileInput.click();
-                };
-                
-                const handleAssignmentFileUpload = (event) => {
-                    const files = Array.from(event.target.files || []);
-                    const promises = files.map(file => {
-                        return new Promise((resolve) => {
-                            if (isImageFile(file.name)) {
-                                const reader = new FileReader();
-                                reader.onload = (e) => {
-                                    resolve({
-                                        id: Date.now() + Math.random().toString(36).substring(2),
-                                        name: file.name,
-                                        size: file.size,
-                                        preview: e.target.result
-                                    });
-                                };
-                                reader.readAsDataURL(file);
-                            } else {
-                                resolve({
-                                    id: Date.now() + Math.random().toString(36).substring(2),
-                                    name: file.name,
-                                    size: file.size
-                                });
-                            }
-                        });
-                    });
-
-                    Promise.all(promises).then(files => {
-                        newAssignment.value.files.push(...files);
-                    });
-                };
-                
-                const removeAssignmentFile = (index) => {
-                    newAssignment.value.files.splice(index, 1);
-                };
-                
-                const addSubject = () => {
-                    const newSubjectObj = {
-                        id: Date.now(),
-                        name: newSubject.value.name,
-                        emoji: newSubject.value.emoji,
-                        group: newSubject.value.group || selectedGroup.value
-                    };
-                    
-                    subjects.value.push(newSubjectObj);
-                    
-                    // Reset form
-                    newSubject.value = {
-                        name: '',
-                        emoji: '',
-                        group: ''
-                    };
-                    
-                    sendDataToBot('add_subject', newSubjectObj);
-                    
-                    closeModal();
-                    showNotice('Новый предмет добавлен', 'fas fa-check-circle');
-                };
-                
-                const showNotice = (message, icon) => {
-                    notificationMessage.value = message;
-                    notificationIcon.value = icon;
-                    showNotification.value = true;
-                    
-                    setTimeout(() => {
-                        showNotification.value = false;
-                    }, 3000);
-                };
-                
-                const viewArchivedSubjects = () => {
-                    showNotice('Функция архива предметов в разработке', 'fas fa-cogs');
-                };
-                
-                // Также добавьте метод для принудительного закрытия модального окна
-                const forceCloseModal = () => {
-                    activeModal.value = null;
-                    const modalElement = document.querySelector('.modal-content');
-                    if (modalElement) {
-                        modalElement.style.display = 'none';
-                    }
-                };
-                
-                // Добавляем метод для проверки прав
-                const checkPermissions = () => {
-                    if (!isAdmin.value) {
-                        showNotice('У вас нет прав для добавления заданий', 'fas fa-exclamation-circle');
-                        return false;
-                    }
-                    return true;
-                };
-                
-                // Admin methods
-                const showAdminKeyModal = () => {
-                    activeModal.value = 'admin-key';
-                };
-
-                const submitAdminKey = () => {
-                    if (adminKeyInput.value === ADMIN_KEY) {
-                        isAdmin.value = true;
-                        localStorage.setItem('isAdmin', 'true');
-                        showNotice('Права администратора получены', 'fas fa-check-circle');
-                        closeModal();
-                    } else {
-                        showNotice('Неверный ключ администратора', 'fas fa-exclamation-circle');
-                    }
-                    adminKeyInput.value = '';
-                };
-
-                const removeAdminRights = () => {
-                    isAdmin.value = false;
-                    localStorage.removeItem('isAdmin');
-                    showNotice('Права администратора удалены', 'fas fa-user-slash');
-                    closeModal();
-                };
-                
-                // Initialize
-                onMounted(() => {
-                    initTelegramWebApp();
-                });
-                
-                // Также нужно скрыть кнопки добавления/редактирования для пользователей без прав
-                const showActionButtons = computed(() => {
-                    return isAdmin.value === true;
-                });
-                
-                return {
-                    // States
-                    currentView,
-                    currentTab,
-                    isLoading,
-                    activeModal,
-                    showNotification,
-                    confirmationMessage,
-                    confirmationDetails,
-                    notificationMessage,
-                    notificationIcon,
-                    imageViewer,
-                    isAdmin,
-                    adminKeyInput,
-                    
-                    // Data
-                    selectedGroup,
-                    botGroups,
-                    subjects,
-                    filteredSubjects,
-                    newSubject,
-                    currentSubject,
-                    currentAssignment,
-                    assignments,
-                    newAssignment,
-                    uploadedFiles,
-                    
-                    // Computed properties
-                    filteredActiveAssignments,
-                    filteredArchivedAssignments,
-                    showActionButtons,
-                    
-                    // Methods
-                    isOverdue,
-                    formatDate,
-                    formatDateTime,
-                    formatFileSize,
-                    getPendingCount,
-                    getArchivedCount,
-                    toggleGroupSelect,
-                    selectGroup,
-                    viewAssignments,
-                    viewAssignmentDetails,
-                    markAsCompleted,
-                    uncompleteAssignment,
-                    archiveAssignment,
-                    unarchiveAssignment,
-                    openFile,
-                    triggerFileInput,
-                    handleFileUpload,
-                    removeFile,
-                    submitSolution,
-                    createAssignment,
-                    triggerAssignmentFileInput,
-                    handleAssignmentFileUpload,
-                    removeAssignmentFile,
-                    showAddSubjectModal,
-                    addSubject,
-                    viewArchivedSubjects,
-                    showConfirmationModal,
-                    showArchiveConfirmation,
-                    executeConfirmationAction,
-                    closeModal,
-                    showAddAssignmentModal,
-                    showUploadModal,
-                    isImageFile,
-                    hasImageAttachments,
-                    hasNonImageAttachments,
-                    getImageAttachments,
-                    openImageGallery,
-                    closeImageViewer,
-                    nextImage,
-                    prevImage,
-                    forceCloseModal,
-                    checkPermissions,
-                    showAdminKeyModal,
-                    submitAdminKey,
-                    removeAdminRights
-                };
+        function openModal() {
+            document.getElementById("myModal").style.display = "block";
+        }
+        
+        function closeModal() {
+            document.getElementById("myModal").style.display = "none";
+        }
+        
+        function currentSlide(n) {
+            slideIndex = n;
+            updateModal();
+        }
+        
+        function plusSlides(n) {
+            slideIndex += n;
+            const galleryItems = document.querySelectorAll('.gallery-item');
+            if (slideIndex > galleryItems.length) {slideIndex = 1}
+            if (slideIndex < 1) {slideIndex = galleryItems.length}
+            updateModal();
+        }
+        
+        function updateModal() {
+            const galleryItem = document.querySelectorAll('.gallery-item')[slideIndex-1];
+            const img = galleryItem.querySelector('img');
+            document.getElementById("modalImage").src = img.src;
+            document.getElementById("caption").innerHTML = img.alt;
+        }
+        
+        // Close modal when clicking outside of image
+        window.onclick = function(event) {
+            const modal = document.getElementById('myModal');
+            if (event.target == modal) {
+                closeModal();
             }
-        }).mount('#app');
+        }
     </script>
 </body>
 </html>
